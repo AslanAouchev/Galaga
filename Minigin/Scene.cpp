@@ -1,6 +1,4 @@
 #include "Scene.h"
-#include "GameObject.h"
-
 #include <algorithm>
 
 using namespace dae;
@@ -11,27 +9,43 @@ Scene::Scene(const std::string& name) : m_name(name) {}
 
 Scene::~Scene() = default;
 
-void Scene::Add(std::shared_ptr<GameObject> object)
+void Scene::Add(std::unique_ptr<GameObject> object)
 {
 	m_objects.emplace_back(std::move(object));
 }
 
-void Scene::Remove(std::shared_ptr<GameObject> object)
+void Scene::Remove(GameObject* object)
 {
-	m_objects.erase(std::remove(m_objects.begin(), m_objects.end(), object), m_objects.end());
+	if (object)
+	{
+		object->MarkForDestruction();
+	}
 }
 
 void Scene::RemoveAll()
 {
-	m_objects.clear();
+	m_shouldRemoveAll = true;
 }
 
-void Scene::Update()
+void Scene::Update(const float& deltaTime)
 {
 	for(auto& object : m_objects)
 	{
-		object->Update();
+		object->Update(deltaTime);
 	}
+
+	if (m_shouldRemoveAll)
+	{
+		m_objects.clear();
+		m_shouldRemoveAll = false;
+	}
+
+	m_objects.erase(
+		std::remove_if(m_objects.begin(), m_objects.end(),
+			[](const std::unique_ptr<GameObject>& obj) {
+				return !obj || obj->IsMarkedForDestruction();
+			}),
+		m_objects.end());
 }
 
 void Scene::Render() const
@@ -41,4 +55,3 @@ void Scene::Render() const
 		object->Render();
 	}
 }
-

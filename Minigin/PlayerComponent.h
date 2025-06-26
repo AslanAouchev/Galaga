@@ -1,0 +1,58 @@
+#pragma once
+#include <memory>
+#include "GameObject.h"
+#include "Component.h"
+#include "TextureComponent.h"
+
+namespace dae
+{
+	enum class GameObjectTag
+	{
+		Player,
+		Enemy,
+		PlayerBullet,
+		EnemyBullet,
+		Powerup
+	};
+
+	class PlayerComponent final : public Component
+	{
+	public:
+		void Update(const float deltaTime) override;
+		void Render() const override;
+
+		PlayerComponent(GameObject* pOwner, const std::string& textureFileName,const std::string& bulletTextureFileName, int health, float bulletSpeed = 400.f,
+			GameObjectTag tag = GameObjectTag::Player,GameObjectTag bulletTag = GameObjectTag::PlayerBullet);
+
+		virtual ~PlayerComponent() = default;
+		PlayerComponent(const PlayerComponent& other) = delete;
+		PlayerComponent(PlayerComponent&& other) = delete;
+		PlayerComponent& operator=(const PlayerComponent& other) = delete;
+		PlayerComponent& operator=(PlayerComponent&& other) = delete;
+
+		void TakeDamage(int amount);
+		bool IsDead() const { return m_IsDead; }
+		bool Fire();
+		glm::vec2 GetTextureSize() const;
+
+		GameObjectTag GetTag() const { return m_Tag; }
+		void SetTag(GameObjectTag tag) { m_Tag = tag; }
+		GameObjectTag GetBulletTag() const { return m_BulletTag; }
+		void SetBulletTag(GameObjectTag bulletTag) { m_BulletTag = bulletTag; }
+
+	private:
+		void CheckCollisions();
+
+		int m_Health{};
+		bool m_IsDead{};
+		GameObjectTag m_Tag{ GameObjectTag::Player };
+		GameObjectTag m_BulletTag{ GameObjectTag::PlayerBullet };
+
+		std::unique_ptr<dae::TextureComponent> m_pTexture{nullptr};
+
+		std::string m_BulletString;
+		float m_FireCooldown{ 0.0f };
+		const float m_MaxFireCooldown{ 0.2f };
+		const float m_BulletSpeed{ 400.0f };
+	};
+}
