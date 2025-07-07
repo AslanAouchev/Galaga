@@ -11,11 +11,8 @@ public:
     static std::unique_ptr<EnemyState> CreateFormationState();
     static std::unique_ptr<EnemyState> CreateInFormationState();
     static std::unique_ptr<EnemyState> CreateDivingState();
-
     virtual ~EnemyState() = default;
-
-    virtual std::unique_ptr<EnemyState> HandleInput(BaseAIController* controller) = 0;
-    virtual void Update(BaseAIController* controller, float deltaTime) = 0;
+    virtual std::unique_ptr<EnemyState> Update(BaseAIController* controller, float deltaTime) = 0;
     virtual void Enter(BaseAIController* ) {  }
     virtual void Exit(BaseAIController* ) {  }
 
@@ -26,16 +23,14 @@ protected:
 class FormationState : public EnemyState
 {
 public:
-    std::unique_ptr<EnemyState> HandleInput(BaseAIController* controller) override;
-    void Update(BaseAIController* controller, float deltaTime) override;
+    std::unique_ptr<EnemyState> Update(BaseAIController* controller, float deltaTime) override;
     void Enter(BaseAIController* controller) override;
 };
 
 class InFormationState : public EnemyState
 {
 public:
-    std::unique_ptr<EnemyState> HandleInput(BaseAIController* controller) override;
-    void Update(BaseAIController* controller, float deltaTime) override;
+    std::unique_ptr<EnemyState> Update(BaseAIController* controller, float deltaTime) override;
     void Enter(BaseAIController* controller) override;
 
 private:
@@ -45,10 +40,8 @@ private:
 class DivingState : public EnemyState
 {
 public:
-    std::unique_ptr<EnemyState> HandleInput(BaseAIController* controller) override;
-    void Update(BaseAIController* controller, float deltaTime) override;
+    std::unique_ptr<EnemyState> Update(BaseAIController* controller, float deltaTime) override;
     void Enter(BaseAIController* controller) override;
-    void Exit(BaseAIController* controller) override;
 
 private:
     std::vector<glm::vec3> m_DivePath;

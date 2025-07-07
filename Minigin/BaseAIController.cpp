@@ -17,13 +17,11 @@ void BaseAIController::Update(float deltaTime)
         m_TargetUpdateTimer = 0.0f;
     }
 
-    auto newState{ m_CurrentState->HandleInput(this) };
+    auto newState{ m_CurrentState->Update(this, deltaTime) };
     if (newState)
     {
         SetState(std::move(newState));
     }
-
-    m_CurrentState->Update(this, deltaTime);
 }
 
 void BaseAIController::SetState(std::unique_ptr<EnemyState> newState)

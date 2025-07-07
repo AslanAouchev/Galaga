@@ -17,22 +17,20 @@ std::unique_ptr<EnemyState> EnemyState::CreateDivingState()
     return std::make_unique<DivingState>();
 }
 
-std::unique_ptr<EnemyState> FormationState::HandleInput(BaseAIController* controller)
-{
-    if (controller->IsNearFormation(10.0f))
-    {
-        return EnemyState::CreateInFormationState();
-    }
-    return nullptr;
-}
-
-void FormationState::Update(BaseAIController* controller, float deltaTime)
+std::unique_ptr<EnemyState> FormationState::Update(BaseAIController* controller, float deltaTime)
 {
     controller->MoveTowards(
         controller->GetFormationPosition(),
         controller->GetSpeed(),
         deltaTime
     );
+
+    if (controller->IsNearFormation(10.0f))
+    {
+        return EnemyState::CreateInFormationState();
+    }
+
+    return nullptr;
 }
 
 void FormationState::Enter(BaseAIController*)
@@ -40,25 +38,7 @@ void FormationState::Enter(BaseAIController*)
     std::cout << "entering formation\n";
 }
 
-std::unique_ptr<EnemyState> InFormationState::HandleInput(BaseAIController* controller)
-{
-    if (controller->GetPlayers().empty())
-    {
-        return nullptr;
-    }
-
-    if (controller->OnShouldDive && controller->OnShouldDive())
-    {
-        m_DiveTimer += 0.016f;
-        if (m_DiveTimer >= 5.0f)
-        {
-            return EnemyState::CreateDivingState();
-        }
-    }
-    return nullptr;
-}
-
-void InFormationState::Update(BaseAIController* controller, float deltaTime)
+std::unique_ptr<EnemyState> InFormationState::Update(BaseAIController* controller, float deltaTime)
 {
     if (controller->OnUpdateFormationBehavior)
     {
@@ -74,6 +54,19 @@ void InFormationState::Update(BaseAIController* controller, float deltaTime)
     }
 
     m_DiveTimer += deltaTime;
+
+    if (!controller->GetPlayers().empty())
+    {
+        if (controller->OnShouldDive && controller->OnShouldDive())
+        {
+            if (m_DiveTimer >= 5.0f)
+            {
+                return EnemyState::CreateDivingState();
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 void InFormationState::Enter(BaseAIController*)
@@ -82,23 +75,7 @@ void InFormationState::Enter(BaseAIController*)
     m_DiveTimer = 0.0f;
 }
 
-std::unique_ptr<EnemyState> DivingState::HandleInput(BaseAIController* controller)
-{
-    if (m_CurrentPathPoint >= m_DivePath.size())
-    {
-        return EnemyState::CreateFormationState();
-    }
-
-    const auto currentPos{ controller->GetOwner()->GetTransform().GetPosition() };
-    if (currentPos.y > 480.f || currentPos.x < -50.0f || currentPos.x > 680.0f)
-    {
-        return EnemyState::CreateFormationState();
-    }
-
-    return nullptr;
-}
-
-void DivingState::Update(BaseAIController* controller, float deltaTime)
+std::unique_ptr<EnemyState> DivingState::Update(BaseAIController* controller, float deltaTime)
 {
     if (!m_PathGenerated)
     {
@@ -129,14 +106,25 @@ void DivingState::Update(BaseAIController* controller, float deltaTime)
     {
         const glm::vec3 target{ m_DivePath[m_CurrentPathPoint] };
         const float distanceToTarget{ controller->GetDistanceToPosition(target) };
-
         controller->MoveTowards(target, controller->GetSpeed() * 1.5f, deltaTime);
-
         if (distanceToTarget < 15.0f)
         {
             m_CurrentPathPoint++;
         }
     }
+
+    if (m_CurrentPathPoint >= m_DivePath.size())
+    {
+        return EnemyState::CreateFormationState();
+    }
+
+    const auto currentPos{ controller->GetOwner()->GetTransform().GetPosition() };
+    if (currentPos.y > 480.f || currentPos.x < -50.0f || currentPos.x > 680.0f)
+    {
+        return EnemyState::CreateFormationState();
+    }
+
+    return nullptr;
 }
 
 void DivingState::Enter(BaseAIController*)
@@ -145,9 +133,4 @@ void DivingState::Enter(BaseAIController*)
     m_DivePath.clear();
     m_CurrentPathPoint = 0;
     m_PathGenerated = false;
-}
-
-void DivingState::Exit(BaseAIController*)
-{
-    std::cout << "finished dive attack\n";
 }
