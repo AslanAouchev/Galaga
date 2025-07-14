@@ -151,19 +151,28 @@ void BaseAIController::OnNotify(const EventData& event)
 {
     if (event.eventType == "PlayerHit")
     {
-        m_KilledPaused = true;
+        SetState(m_CurrentState->CreateInDeadPlayerFormationState());
     }
-    else if (event.eventType == "ResumeKillled")
+    else if (event.eventType == "ResumeKilled")
     {
-        m_KilledPaused = false;
+        SetState(m_CurrentState->CreateFormationState());
     }
-    else if (event.eventType == "EnemyKilled")
+    else if (event.eventType == "Pause")
     {
-
+        m_Paused = true;
     }
-    else if (event.eventType == "PauseButton")
+	else if (event.eventType == "Resume")
+	{
+		m_Paused = false;
+	}
+    else if (event.eventType == "Reset")
     {
-
+        m_Paused = false;
+        m_TargetPlayer = nullptr;
+        m_Players.clear();
+        SetState(EnemyState::CreateFormationState());
+        m_FormationPosition = { 0, 0, 0 };
+        m_TargetUpdateTimer = 0.f;
     }
 }
 

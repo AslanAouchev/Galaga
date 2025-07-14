@@ -100,6 +100,8 @@ namespace dae
 			NotifyObservers(event);
 		}
 
+		void SetActive(bool active) { m_IsActive = active; }
+
 	private:
 
 		void AddChild(GameObject* pChild);
@@ -120,5 +122,6 @@ namespace dae
 		glm::vec3 m_WorldPosition{};
 		glm::vec3 m_LocalPosition{};
 		bool m_markedForDestruction{ false };
+		bool m_IsActive{ true };
 	};
 }

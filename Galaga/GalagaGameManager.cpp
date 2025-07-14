@@ -9,7 +9,7 @@ GalagaGameManager::GalagaGameManager(dae::GameObject* pOwner) : dae::Component(p
 
 void GalagaGameManager::OnNotify(const EventData& event)
 {
-    if (!m_IsGameRunning && event.eventType != "PauseButton")
+    if (!m_IsGameRunning && event.eventType != "Pause")
     {
         return;
     }
@@ -21,7 +21,6 @@ void GalagaGameManager::OnNotify(const EventData& event)
     }
     else if (event.eventType == "ResumeKilled")
     {
-        HandleEnemyKilled(event);
         GetOwner()->TriggerEvent("ResumeKilled");
     }
     else if (event.eventType == "EnemyKilled")
@@ -29,7 +28,7 @@ void GalagaGameManager::OnNotify(const EventData& event)
         HandleEnemyKilled(event);
         GetOwner()->TriggerEvent("EnemyKilled");
     }
-    else if (event.eventType == "PauseButton")
+    else if (event.eventType == "Pause")
     {
 		if (!m_IsPaused && m_IsGameRunning)
 		{
@@ -42,6 +41,11 @@ void GalagaGameManager::OnNotify(const EventData& event)
             GetOwner()->TriggerEvent("Resume");
         }
     }
+}
+
+void GalagaGameManager::SetScore(const EventData& event)
+{
+    AddScore(event.gameObject->GetComponent<dae::PlayerComponent>()->GetScore());
 }
 
 void GalagaGameManager::StartGame()

@@ -39,6 +39,8 @@ private:
 
     void OnNotify(const EventData& event) override;
 
+    void SetScore(const EventData& event);
+
     void StartGame();
     void PauseGame();
     void ResumeGame();

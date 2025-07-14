@@ -17,6 +17,7 @@ BeeAiControllerComponent::BeeAiControllerComponent(dae::GameObject* owner)
     {
         playerComp->SetBulletTag(dae::BulletTag::EnemyBullet);
         playerComp->SetTag(dae::GameObjectTag::Bee);
+		playerComp->SetScore(50);
     }
 }
 
@@ -30,7 +31,7 @@ BeeAiControllerComponent::~BeeAiControllerComponent()
 
 void BeeAiControllerComponent::Update(const float deltaTime)
 {
-    if (m_Paused || m_KilledPaused) return;
+    if (m_Paused) return;
 
 	BaseAIController::Update(deltaTime);
 

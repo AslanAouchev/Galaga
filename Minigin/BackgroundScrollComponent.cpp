@@ -19,17 +19,17 @@ namespace dae
         {
             m_KilledPaused = true;
         }
-        else if (event.eventType == "ResumeKillled")
+        else if (event.eventType == "ResumeKilled")
         {
             m_KilledPaused = false;
         }
-        else if (event.eventType == "EnemyKilled")
+        else if (event.eventType == "Pause")
         {
-
+            m_Paused = true;
         }
-        else if (event.eventType == "PauseButton")
+        else if (event.eventType == "Resume")
         {
-
+            m_Paused = false;
         }
     }
 

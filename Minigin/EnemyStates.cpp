@@ -7,6 +7,11 @@ std::unique_ptr<EnemyState> EnemyState::CreateFormationState()
     return std::make_unique<FormationState>();
 }
 
+std::unique_ptr<EnemyState> EnemyState::CreateInDeadPlayerFormationState()
+{
+    return std::make_unique<InDeadPlayerFormationState>();
+}
+
 std::unique_ptr<EnemyState> EnemyState::CreateInFormationState()
 {
     return std::make_unique<InFormationState>();
@@ -111,4 +116,27 @@ void DivingState::Enter(BaseAIController*)
     m_DivePath.clear();
     m_CurrentPathPoint = 0;
     m_PathGenerated = false;
+}
+
+std::unique_ptr<EnemyState> InDeadPlayerFormationState::Update(BaseAIController* controller, float deltaTime)
+{
+	if (controller->IsNearFormation(10.0f))
+	{
+        controller->OnUpdateFormationBehavior(deltaTime);
+    }
+    else
+    {
+        controller->MoveTowards(
+            controller->GetFormationPosition(),
+            controller->GetSpeed(),
+            deltaTime
+        );
+    }
+
+    return nullptr;
+}
+
+void InDeadPlayerFormationState::Enter(BaseAIController*)
+{
+    std::cout << "starting in dead player formation state\n";
 }

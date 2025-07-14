@@ -68,6 +68,7 @@ void load()
 	input.BindContinuousCommand(SDL_SCANCODE_A, std::make_unique<MoveLeftCommand>(go.get()));
 	input.BindContinuousCommand(SDL_SCANCODE_D, std::make_unique<MoveRightCommand>(go.get()));
 	input.BindCommand(SDL_SCANCODE_SPACE, std::make_unique<FireCommand>(go.get()));
+	input.BindCommand(SDL_SCANCODE_ESCAPE, std::make_unique<PauseCommand>(go.get()));
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, std::make_unique<MoveLeftCommand>(go.get()));
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, std::make_unique<MoveRightCommand>(go.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<FireCommand>(go.get()));

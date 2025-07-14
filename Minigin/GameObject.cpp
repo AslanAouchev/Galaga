@@ -22,6 +22,8 @@ dae::GameObject::~GameObject()
 }
 void dae::GameObject::Update(const float deltaTime)
 {
+	if (!m_IsActive) return;
+
 	for (auto& components : m_Components)
 	{
 		if(components)
@@ -35,6 +37,8 @@ void dae::GameObject::Update(const float deltaTime)
 
 void dae::GameObject::Render() const
 {
+	if (!m_IsActive) return;
+
 	for (const auto& components : m_Components)
 	{
 		if(components)

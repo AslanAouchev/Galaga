@@ -33,12 +33,7 @@ void dae::PlayerComponent::Update(const float deltaTime)
 
     if (m_IsDead && m_Tag != GameObjectTag::Player)
     {
-        if (GetOwner()->GetParent())
-        {
-            GetOwner()->GetParent()->RemoveObserver(this);
-        }
-        auto& scene{ dae::SceneManager::GetInstance().GetActiveScene() };
-        scene.Remove(GetOwner());
+        GetOwner()->SetActive(false);
         return;
     }
 
@@ -67,28 +62,24 @@ void dae::PlayerComponent::TakeDamage(int amount)
     {
         GetOwner()->TriggerEvent("PlayerHit");
     }
-    else
-    {
-        GetOwner()->TriggerEvent("EnemyHit");
-    }
 
     if (m_Health <= 0)
     {
         if (m_Tag == GameObjectTag::Bee)
         {
-            GetOwner()->TriggerEvent("EnemyKilledBee");
+            GetOwner()->TriggerEvent("EnemyKilled");
         }
 		else if (m_Tag == GameObjectTag::Butterfly)
 		{
-			GetOwner()->TriggerEvent("EnemyKilledButterfly");
+			GetOwner()->TriggerEvent("EnemyKilled");
 		}
 		else if (m_Tag == GameObjectTag::Boss)
 		{
-			GetOwner()->TriggerEvent("EnemyKilledBoss");
+			GetOwner()->TriggerEvent("EnemyKilled");
 		}
-		else if (m_Tag == GameObjectTag::Player)
+		else if (m_Tag == GameObjectTag::EnemyPlayer)
 		{
-			GetOwner()->TriggerEvent("EnemyKilledEnemyPlayer");
+			GetOwner()->TriggerEvent("EnemyKilled");
 		}
         m_IsDead = true;
     }
@@ -100,6 +91,8 @@ bool dae::PlayerComponent::Fire()
     {
         return false;
     }
+
+	std::cout << m_Paused << " " << m_KilledPaused << std::endl;
 
     if (m_FireCooldown <= 0.0f)
     {
@@ -130,14 +123,14 @@ void dae::PlayerComponent::OnNotify(const EventData& event)
 	if (event.eventType == "PlayerHit")
 	{
         m_KilledPaused = true;
-        m_KilledPauseTimer = 2.f;
+        m_KilledPauseTimer = 5.f;
 	}
 	else if (event.eventType == "ResumeKillled")
 	{
 		m_KilledPaused = false;
 		m_KilledPauseTimer = 0.0f;
 	}
-	else if (event.eventType == "PauseButton")
+	else if (event.eventType == "Pause")
 	{
 		m_Paused = !m_Paused;
 	}
@@ -147,6 +140,7 @@ void dae::PlayerComponent::OnNotify(const EventData& event)
         m_IsDead = false;
         m_Paused = false;
         m_FireCooldown = 0.0f;
+        GetOwner()->SetActive(false);
     }
 }
 

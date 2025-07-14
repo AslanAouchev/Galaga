@@ -80,3 +80,23 @@ public:
 
     }
 };
+
+class PauseCommand : public GameObjectCommand
+{
+public:
+
+    PauseCommand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
+
+    virtual void Execute() override
+    {
+        if (GetGameObject())
+        {
+			GetGameObject()->TriggerEvent("Pause");
+        }
+    }
+
+    virtual void Execute(float) override
+    {
+
+    }
+};

@@ -47,7 +47,6 @@ public:
 
 protected:
     bool m_Paused{ false };
-    bool m_KilledPaused{ false };
 
 private:
     std::unique_ptr<EnemyState> m_CurrentState{nullptr};
