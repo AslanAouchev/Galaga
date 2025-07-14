@@ -34,6 +34,10 @@ void dae::PlayerComponent::Update(const float deltaTime)
 
     if (m_IsDead && m_Tag != GameObjectTag::Player)
     {
+        if (GetOwner()->GetParent())
+        {
+            GetOwner()->GetParent()->RemoveObserver(this);
+        }
         auto& scene{ dae::SceneManager::GetInstance().GetActiveScene() };
         scene.Remove(GetOwner());
         return;
@@ -76,6 +80,11 @@ void dae::PlayerComponent::TakeDamage(int amount)
 
 bool dae::PlayerComponent::Fire()
 {
+    if (m_Paused || m_KilledPaused)
+    {
+        return false;
+    }
+
     if (m_FireCooldown <= 0.0f)
     {
         auto bullet{ std::make_unique<dae::GameObject>() };
@@ -107,10 +116,14 @@ void dae::PlayerComponent::OnNotify(const EventData& event)
         m_KilledPaused = true;
         m_KilledPauseTimer = 2.f;
 	}
+	else if (event.eventType == "ResumeKillled")
+	{
+		m_KilledPaused = false;
+		m_KilledPauseTimer = 0.0f;
+	}
 	else if (event.eventType == "PauseButton")
 	{
 		m_Paused = !m_Paused;
-		std::cout << "PlayerComponent: Pause state toggled." << std::endl;
 	}
     else if (event.eventType == "Reset")
     {
@@ -181,6 +194,7 @@ void dae::PlayerComponent::UpdateKilledPause(float deltaTime)
         {
             m_KilledPaused = false;
             m_KilledPauseTimer = 0.0f;
+            GetOwner()->TriggerEvent("ResumeKilled");
         }
     }
 }

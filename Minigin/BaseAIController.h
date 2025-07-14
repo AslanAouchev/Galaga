@@ -12,7 +12,7 @@ class BaseAIController : public Observer
 {
 public:
     BaseAIController(dae::GameObject* owner);
-    virtual ~BaseAIController();
+    ~BaseAIController();
 
     void Update(float deltaTime);
     void SetState(std::unique_ptr<EnemyState> newState);

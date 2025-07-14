@@ -84,7 +84,10 @@ void load()
 		go->AddComponent<dae::PlayerComponent>(go.get(), "enemy.png", "BulletEnemy.png", 1, -300.f, dae::GameObjectTag::Enemy, dae::GameObjectTag::EnemyBullet);
 		go->AddComponent<BeeAiControllerComponent>(go.get());
 
+		go->SetParent(fo.get(), true);
+
 		fo->AddObserver(go.get()->GetComponent<BeeAiControllerComponent>());
+		fo->AddObserver(go.get()->GetComponent<dae::PlayerComponent>());
 
 		scene.Add(std::move(go));
 	}

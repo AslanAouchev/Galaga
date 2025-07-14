@@ -115,7 +115,7 @@ namespace dae
 		std::vector<std::unique_ptr<Component>> m_Components{};
 		GameObject* m_Parent{nullptr};
 		std::vector<GameObject*> m_Children{};
-		std::vector<Observer*> m_Observers;
+		std::vector<Observer*> m_Observers{};
 		bool m_positionIsDirty{true};
 		glm::vec3 m_WorldPosition{};
 		glm::vec3 m_LocalPosition{};

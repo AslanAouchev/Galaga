@@ -19,6 +19,11 @@ void GalagaGameManager::OnNotify(const EventData& event)
         HandlePlayerKilled(event);
 		GetOwner()->TriggerEvent("PlayerHit");
     }
+    else if (event.eventType == "ResumeKilled")
+    {
+        HandleEnemyKilled(event);
+        GetOwner()->TriggerEvent("ResumeKilled");
+    }
     else if (event.eventType == "EnemyKilled")
     {
         HandleEnemyKilled(event);

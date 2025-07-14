@@ -18,6 +18,7 @@ dae::GameObject::~GameObject()
 		}
 	}
 	m_Children.clear();
+	m_Observers.clear();
 }
 void dae::GameObject::Update(const float deltaTime)
 {

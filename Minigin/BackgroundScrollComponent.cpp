@@ -19,6 +19,10 @@ namespace dae
         {
             m_KilledPaused = true;
         }
+        else if (event.eventType == "ResumeKillled")
+        {
+            m_KilledPaused = false;
+        }
         else if (event.eventType == "EnemyKilled")
         {
 

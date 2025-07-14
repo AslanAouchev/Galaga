@@ -12,6 +12,14 @@ BeeAiControllerComponent::BeeAiControllerComponent(dae::GameObject* owner)
     SetDiveCooldown(0.5f);
 }
 
+BeeAiControllerComponent::~BeeAiControllerComponent()
+{
+    if (GetOwner()->GetParent())
+    {
+        GetOwner()->GetParent()->RemoveObserver(this);
+    }
+}
+
 void BeeAiControllerComponent::Update(const float deltaTime)
 {
     if (m_Paused || m_KilledPaused) return;
