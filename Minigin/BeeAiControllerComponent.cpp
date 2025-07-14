@@ -6,19 +6,18 @@
 #include <PlayerComponent.h>
 
 BeeAiControllerComponent::BeeAiControllerComponent(dae::GameObject* owner)
-    : Component(owner), m_AICore(std::make_unique<BaseAIController>(owner))
+	: Component(owner), BaseAIController(owner)
 {
-    m_AICore->SetSpeed(50.0f);
-    m_AICore->SetDiveCooldown(6.0f);
-
-    m_AICore->OnUpdateFormationBehavior = [this](float deltaTime) { UpdateFormationBehavior(deltaTime); };
-    m_AICore->OnGenerateDivePath = [this](std::vector<glm::vec3>& path) { GenerateDivePath(path); };
-    m_AICore->OnShouldDive = [this]() { return ShouldDive(); };
-    m_AICore->Shoot = [this]() {return Shoot();};
+    SetSpeed(120.0f);
+    SetDiveCooldown(0.5f);
 }
 
 void BeeAiControllerComponent::Update(const float deltaTime)
 {
+    if (m_Paused || m_KilledPaused) return;
+
+	BaseAIController::Update(deltaTime);
+
     if(m_ExistenceTimer < 1.0f)
     {
         m_ExistenceTimer += deltaTime;
@@ -29,8 +28,6 @@ void BeeAiControllerComponent::Update(const float deltaTime)
         UpdatePlayersFromScene();
         m_HasFoundPlayers = true;
     }
-
-    m_AICore->Update(deltaTime);
 }
 
 void BeeAiControllerComponent::UpdatePlayersFromScene()
@@ -52,30 +49,29 @@ void BeeAiControllerComponent::UpdatePlayersFromScene()
         }
     }
 
-    m_AICore->SetPlayers(foundPlayers);
+    SetPlayers(foundPlayers);
 }
 
-
-void BeeAiControllerComponent::UpdateFormationBehavior(float deltaTime)
+void BeeAiControllerComponent::OnUpdateFormationBehavior(float deltaTime)
 {
     m_FormationWobble += deltaTime * 2.0f;
     const float wobbleOffset{ std::sin(m_FormationWobble) * 10.0f };
 
-    glm::vec3 wobblePos{ m_AICore->GetFormationPosition() };
+    glm::vec3 wobblePos{ GetFormationPosition() };
     wobblePos.x += wobbleOffset;
 
-    m_AICore->MoveTowards(wobblePos, 20.0f, deltaTime);
+    MoveTowards(wobblePos, 20.0f, deltaTime);
 }
 
-void BeeAiControllerComponent::GenerateDivePath(std::vector<glm::vec3>& path)
+void BeeAiControllerComponent::OnGenerateDivePath(std::vector<glm::vec3>& path)
 {
     path.clear();
     const auto currentPos{ GetOwner()->GetTransform().GetPosition() };
 
-    auto targetPlayer{ m_AICore->GetTargetPlayer() };
+    auto targetPlayer{ GetTargetPlayer() };
     if (!targetPlayer)
     {
-        targetPlayer = m_AICore->GetClosestPlayer();
+        targetPlayer = GetClosestPlayer();
     }
 
     if (targetPlayer)
@@ -92,9 +88,9 @@ void BeeAiControllerComponent::GenerateDivePath(std::vector<glm::vec3>& path)
     }
 }
 
-bool BeeAiControllerComponent::ShouldDive()
+bool BeeAiControllerComponent::OnShouldDive()
 {
-    return !m_AICore->GetPlayers().empty();
+    return !GetPlayers().empty();
 }
 
 void BeeAiControllerComponent::Shoot()

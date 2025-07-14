@@ -3,18 +3,25 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "HitboxComponent.h"
-#include <SDLSoundSystem.h>
 
 dae::PlayerComponent::PlayerComponent(GameObject* pOwner, const std::string& textureFileName, const std::string& bulletTextureFileName, int health, float bulletSpeed,
-    GameObjectTag tag, GameObjectTag bulletTag) :
-    Component(pOwner), m_Health{ health }, m_BulletString{ bulletTextureFileName }, m_Tag{ tag }, m_BulletTag{ bulletTag }, m_BulletSpeed{bulletSpeed}
+    GameObjectTag tag, GameObjectTag bulletTag, int scoreValue) :
+	Component(pOwner), m_MaxHealth{ health }, m_BulletString{ bulletTextureFileName }, m_Tag{ tag }, m_BulletTag{ bulletTag }, m_BulletSpeed{ bulletSpeed }, m_ScoreValue{ scoreValue }
 {
     m_pTexture = std::make_unique<TextureComponent>(textureFileName, pOwner);
 	GetOwner()->AddComponent<dae::HitboxComponent>(GetOwner());
+	m_Health = m_MaxHealth;
 }
 
 void dae::PlayerComponent::Update(const float deltaTime)
 {
+    UpdateKilledPause(deltaTime);
+
+    if (m_Paused || m_KilledPaused) 
+    {
+        return;
+    }
+
     if (m_pTexture)
     {
         m_pTexture->Update(deltaTime);
@@ -25,7 +32,7 @@ void dae::PlayerComponent::Update(const float deltaTime)
         m_FireCooldown -= deltaTime;
     }
 
-    if (m_IsDead)
+    if (m_IsDead && m_Tag != GameObjectTag::Player)
     {
         auto& scene{ dae::SceneManager::GetInstance().GetActiveScene() };
         scene.Remove(GetOwner());
@@ -47,9 +54,22 @@ void dae::PlayerComponent::TakeDamage(int amount)
 {
     m_Health -= amount;
     ServiceLocator::getSoundSystem().play(5, 0.8f);
+
+    if (m_Tag == GameObjectTag::Player)
+    {
+        GetOwner()->TriggerEvent("PlayerHit");
+    }
+    else
+    {
+        GetOwner()->TriggerEvent("EnemyHit");
+    }
+
     if (m_Health <= 0)
     {
-        m_Health = 0;
+        if (m_Tag == GameObjectTag::Enemy)
+        {
+            GetOwner()->TriggerEvent("EnemyKilled");
+        }
         m_IsDead = true;
     }
 }
@@ -78,6 +98,27 @@ bool dae::PlayerComponent::Fire()
 glm::vec2 dae::PlayerComponent::GetTextureSize() const
 {
     return m_pTexture->GetTextureSize();
+}
+
+void dae::PlayerComponent::OnNotify(const EventData& event)
+{
+	if (event.eventType == "PlayerHit")
+	{
+        m_KilledPaused = true;
+        m_KilledPauseTimer = 2.f;
+	}
+	else if (event.eventType == "PauseButton")
+	{
+		m_Paused = !m_Paused;
+		std::cout << "PlayerComponent: Pause state toggled." << std::endl;
+	}
+    else if (event.eventType == "Reset")
+    {
+        m_Health = m_MaxHealth;
+        m_IsDead = false;
+        m_Paused = false;
+        m_FireCooldown = 0.0f;
+    }
 }
 
 void dae::PlayerComponent::CheckCollisions()
@@ -127,6 +168,19 @@ void dae::PlayerComponent::CheckCollisions()
                     return;
                 }
             }
+        }
+    }
+}
+
+void dae::PlayerComponent::UpdateKilledPause(float deltaTime)
+{
+    if (m_KilledPaused)
+    {
+        m_KilledPauseTimer -= deltaTime;
+        if (m_KilledPauseTimer <= 0.0f)
+        {
+            m_KilledPaused = false;
+            m_KilledPauseTimer = 0.0f;
         }
     }
 }

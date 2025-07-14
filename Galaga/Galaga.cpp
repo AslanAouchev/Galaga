@@ -21,6 +21,7 @@
 #include <BackgroundScrollComponent.h>
 #include <BoundsComponent.h>
 #include <BeeAiControllerComponent.h>
+#include "GalagaGameManager.h"
 
 void load()
 {
@@ -38,17 +39,24 @@ void load()
 	}
 
 	auto fo = std::make_unique<dae::GameObject>();
+	fo->AddComponent<GalagaGameManager>(fo.get());
 
 	auto bg1 = std::make_unique<dae::GameObject>();
 	bg1->AddComponent<dae::TextureComponent>("background.png", bg1.get());
 	bg1->AddComponent<dae::BackgroundScrollComponent>(bg1.get(), 80.f, 480.f, 0.f);
 	bg1->SetPosition(0, 0);
+
+	fo->AddObserver(bg1.get()->GetComponent<Observer>());
+
 	scene.Add(std::move(bg1));
 
 	auto bg2 = std::make_unique<dae::GameObject>();
 	bg2->AddComponent<dae::TextureComponent>("background.png", bg2.get());
 	bg2->AddComponent<dae::BackgroundScrollComponent>(bg2.get(), 80.f, 480.f, -480.f);
 	bg2->SetPosition(0,-480);
+
+	fo->AddObserver(bg2.get()->GetComponent<Observer>());
+
 	scene.Add(std::move(bg2));
 
 	auto go = std::make_unique<dae::GameObject>();
@@ -64,6 +72,9 @@ void load()
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, std::make_unique<MoveRightCommand>(go.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<FireCommand>(go.get()));
 
+	go->AddObserver(fo.get()->GetComponent<Observer>());
+	fo->AddObserver(go.get()->GetComponent<Observer>());
+
 	scene.Add(std::move(go));
 
 	for (int i{}; i < 10; i++)
@@ -73,8 +84,12 @@ void load()
 		go->AddComponent<dae::PlayerComponent>(go.get(), "enemy.png", "BulletEnemy.png", 1, -300.f, dae::GameObjectTag::Enemy, dae::GameObjectTag::EnemyBullet);
 		go->AddComponent<BeeAiControllerComponent>(go.get());
 
+		fo->AddObserver(go.get()->GetComponent<BeeAiControllerComponent>());
+
 		scene.Add(std::move(go));
 	}
+
+	scene.Add(std::move(fo));
 
 	auto& soundSystem = ServiceLocator::getSoundSystem();
 

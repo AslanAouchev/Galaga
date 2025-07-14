@@ -13,8 +13,26 @@ namespace dae
     {
     }
 
+    void BackgroundScrollComponent::OnNotify(const EventData& event)
+    {
+        if (event.eventType == "PlayerHit")
+        {
+            m_KilledPaused = true;
+        }
+        else if (event.eventType == "EnemyKilled")
+        {
+
+        }
+        else if (event.eventType == "PauseButton")
+        {
+
+        }
+    }
+
     void BackgroundScrollComponent::Update(float deltaTime)
     {
+        if (m_Paused || m_KilledPaused) return;
+
         m_CurrentOffset += m_ScrollSpeed * deltaTime;
         float newY{ m_InitialY + m_CurrentOffset };
 

@@ -201,6 +201,7 @@
     <ClInclude Include="..\3rdParty\imgui\imstb_truetype.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="HitboxComponent.h" />
+    <ClInclude Include="Observer.h" />
     <ClInclude Include="SDLSoundSystem.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="GameObject.h" />

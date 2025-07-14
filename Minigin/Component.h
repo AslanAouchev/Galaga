@@ -1,4 +1,5 @@
 #pragma once
+#include "Observer.h"
 
 namespace dae
 {
@@ -19,6 +20,7 @@ namespace dae
 
 	protected:
 		explicit Component(GameObject* pOwner) : m_pOwner(pOwner) {}
+
 	private:
 
 		GameObject* m_pOwner{ nullptr };

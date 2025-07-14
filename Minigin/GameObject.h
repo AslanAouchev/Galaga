@@ -65,6 +65,41 @@ namespace dae
 		void MarkForDestruction() { m_markedForDestruction = true; }
 		bool IsMarkedForDestruction() const { return m_markedForDestruction; }
 
+		void AddObserver(Observer* observer)
+		{
+			if (observer && std::find(m_Observers.begin(), m_Observers.end(), observer) == m_Observers.end())
+			{
+				m_Observers.push_back(observer);
+			}
+		}
+
+		void RemoveObserver(Observer* observer)
+		{
+			auto it{ std::find(m_Observers.begin(), m_Observers.end(), observer) };
+			if (it != m_Observers.end())
+			{
+				m_Observers.erase(it);
+			}
+		}
+
+		void NotifyObservers(const EventData& event)
+		{
+			auto observersCopy{ m_Observers };
+			for (auto* observer : observersCopy)
+			{
+				if (observer)
+				{
+					observer->OnNotify(event);
+				}
+			}
+		}
+
+		void TriggerEvent(const std::string& eventType)
+		{
+			EventData event(eventType, this);
+			NotifyObservers(event);
+		}
+
 	private:
 
 		void AddChild(GameObject* pChild);
@@ -80,6 +115,7 @@ namespace dae
 		std::vector<std::unique_ptr<Component>> m_Components{};
 		GameObject* m_Parent{nullptr};
 		std::vector<GameObject*> m_Children{};
+		std::vector<Observer*> m_Observers;
 		bool m_positionIsDirty{true};
 		glm::vec3 m_WorldPosition{};
 		glm::vec3 m_LocalPosition{};

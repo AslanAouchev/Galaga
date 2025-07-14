@@ -4,19 +4,20 @@
 #include <vector>
 #include <functional>
 #include "GameObject.h"
+#include "Observer.h"
 
 class EnemyState;
 
-class BaseAIController
+class BaseAIController : public Observer
 {
 public:
     BaseAIController(dae::GameObject* owner);
-    virtual ~BaseAIController() = default;
+    virtual ~BaseAIController();
 
     void Update(float deltaTime);
     void SetState(std::unique_ptr<EnemyState> newState);
 
-    dae::GameObject* GetOwner() const { return m_Owner; }
+	dae::GameObject* GetOwnerAI() const { return m_Owner; }
     const std::vector<dae::GameObject*>& GetPlayers() const { return m_Players; }
     dae::GameObject* GetClosestPlayer() const;
     dae::GameObject* GetTargetPlayer() const { return m_TargetPlayer; }
@@ -36,12 +37,17 @@ public:
 
     void UpdateTargetPlayer();
     float GetDistanceToPlayer(dae::GameObject* player) const;
+    void OnNotify(const EventData& event) override;
     dae::GameObject* GetClosestPlayerInRange(float range) const;
 
-    std::function<void(float)> OnUpdateFormationBehavior;
-    std::function<void(std::vector<glm::vec3>&)> OnGenerateDivePath;
-    std::function<bool()> OnShouldDive;
-    std::function<void()> Shoot;
+    virtual void OnUpdateFormationBehavior(float) = 0;
+    virtual void OnGenerateDivePath(std::vector<glm::vec3>&) = 0;
+    virtual bool OnShouldDive() = 0;
+    virtual void Shoot() = 0;
+
+protected:
+    bool m_Paused{ false };
+    bool m_KilledPaused{ false };
 
 private:
     std::unique_ptr<EnemyState> m_CurrentState{nullptr};

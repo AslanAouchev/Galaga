@@ -11,20 +11,18 @@ namespace dae
 		Player,
 		Enemy,
 		PlayerBullet,
-		EnemyBullet,
-		Powerup
+		EnemyBullet
 	};
 
-	class PlayerComponent final : public Component
+	class PlayerComponent final : public Component, public Observer
 	{
 	public:
 		void Update(const float deltaTime) override;
 		void Render() const override;
 
 		PlayerComponent(GameObject* pOwner, const std::string& textureFileName,const std::string& bulletTextureFileName, int health, float bulletSpeed = 400.f,
-			GameObjectTag tag = GameObjectTag::Player,GameObjectTag bulletTag = GameObjectTag::PlayerBullet);
+			GameObjectTag tag = GameObjectTag::Player,GameObjectTag bulletTag = GameObjectTag::PlayerBullet, int scoreValue = 0);
 
-		virtual ~PlayerComponent() = default;
 		PlayerComponent(const PlayerComponent& other) = delete;
 		PlayerComponent(PlayerComponent&& other) = delete;
 		PlayerComponent& operator=(const PlayerComponent& other) = delete;
@@ -40,10 +38,14 @@ namespace dae
 		GameObjectTag GetBulletTag() const { return m_BulletTag; }
 		void SetBulletTag(GameObjectTag bulletTag) { m_BulletTag = bulletTag; }
 
+		void OnNotify(const EventData& event) override;
+
 	private:
 		void CheckCollisions();
+		void UpdateKilledPause(float deltaTime);
 
 		int m_Health{};
+		int m_MaxHealth{};
 		bool m_IsDead{};
 		GameObjectTag m_Tag{ GameObjectTag::Player };
 		GameObjectTag m_BulletTag{ GameObjectTag::PlayerBullet };
@@ -54,5 +56,10 @@ namespace dae
 		float m_FireCooldown{ 0.0f };
 		const float m_MaxFireCooldown{ 0.2f };
 		const float m_BulletSpeed{ 400.0f };
+		int m_ScoreValue{ 0 };
+		bool m_Paused{ false };
+
+		bool m_KilledPaused{ false };
+		float m_KilledPauseTimer{ 0.0f };
 	};
 }

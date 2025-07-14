@@ -162,6 +162,7 @@
     <ClCompile Include="..\Minigin\PlayerComponent.cpp" />
     <ClCompile Include="BulletComponent.cpp" />
     <ClCompile Include="Galaga.cpp" />
+    <ClCompile Include="GalagaGameManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Minigin\BaseAIController.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="..\Minigin\InputCommands.h" />
     <ClInclude Include="..\Minigin\PlayerComponent.h" />
     <ClInclude Include="BulletComponent.h" />
+    <ClInclude Include="GalagaGameManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

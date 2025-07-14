@@ -40,24 +40,13 @@ void FormationState::Enter(BaseAIController*)
 
 std::unique_ptr<EnemyState> InFormationState::Update(BaseAIController* controller, float deltaTime)
 {
-    if (controller->OnUpdateFormationBehavior)
-    {
-        controller->OnUpdateFormationBehavior(deltaTime);
-    }
-    else
-    {
-        controller->MoveTowards(
-            controller->GetFormationPosition(),
-            controller->GetSpeed() * 0.3f,
-            deltaTime
-        );
-    }
+    controller->OnUpdateFormationBehavior(deltaTime);
 
     m_DiveTimer += deltaTime;
 
     if (!controller->GetPlayers().empty())
     {
-        if (controller->OnShouldDive && controller->OnShouldDive())
+        if (controller->OnShouldDive())
         {
             if (m_DiveTimer >= 5.0f)
             {
@@ -79,20 +68,9 @@ std::unique_ptr<EnemyState> DivingState::Update(BaseAIController* controller, fl
 {
     if (!m_PathGenerated)
     {
-        if (controller->OnGenerateDivePath)
-        {
-            controller->OnGenerateDivePath(m_DivePath);
-            m_PathGenerated = true;
-            m_CurrentPathPoint = 0;
-        }
-        else
-        {
-            const auto currentPos{ controller->GetOwner()->GetTransform().GetPosition() };
-            m_DivePath.push_back({ currentPos.x, currentPos.y + 200.0f, 0 });
-            m_DivePath.push_back({ currentPos.x, 500.0f, 0 });
-            m_PathGenerated = true;
-            m_CurrentPathPoint = 0;
-        }
+        controller->OnGenerateDivePath(m_DivePath);
+        m_PathGenerated = true;
+        m_CurrentPathPoint = 0;
     }
 
     m_ShootTimer += deltaTime;
@@ -118,7 +96,7 @@ std::unique_ptr<EnemyState> DivingState::Update(BaseAIController* controller, fl
         return EnemyState::CreateFormationState();
     }
 
-    const auto currentPos{ controller->GetOwner()->GetTransform().GetPosition() };
+    const auto currentPos{ controller->GetOwnerAI()->GetTransform().GetPosition() };
     if (currentPos.y > 480.f || currentPos.x < -50.0f || currentPos.x > 680.0f)
     {
         return EnemyState::CreateFormationState();

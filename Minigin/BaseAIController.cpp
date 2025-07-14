@@ -8,6 +8,8 @@ BaseAIController::BaseAIController(dae::GameObject* owner)
     m_CurrentState = EnemyState::CreateFormationState();
 }
 
+BaseAIController::~BaseAIController() = default;
+
 void BaseAIController::Update(float deltaTime)
 {
     m_TargetUpdateTimer += deltaTime;
@@ -143,6 +145,22 @@ float BaseAIController::GetDistanceToPlayer(dae::GameObject* player) const
 
     const auto playerPos{ player->GetTransform().GetPosition() };
     return GetDistanceToPosition(playerPos);
+}
+
+void BaseAIController::OnNotify(const EventData& event)
+{
+    if (event.eventType == "PlayerHit")
+    {
+        m_KilledPaused = true;
+    }
+    else if (event.eventType == "EnemyKilled")
+    {
+
+    }
+    else if (event.eventType == "PauseButton")
+    {
+
+    }
 }
 
 dae::GameObject* BaseAIController::GetClosestPlayerInRange(float range) const
