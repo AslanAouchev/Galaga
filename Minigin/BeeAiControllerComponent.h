@@ -3,6 +3,7 @@
 #include "Component.h"
 #include "GameObject.h"
 #include "BaseAIController.h"
+#include "PlayerComponent.h"
 
 class BeeAiControllerComponent : public dae::Component, public BaseAIController
 {
@@ -16,7 +17,7 @@ public:
     BeeAiControllerComponent& operator=(BeeAiControllerComponent&& other) = delete;
 
     void Update(const float deltaTime) override;
-    void Render() const override {}
+    void Render() const override {};
 
 private:
     float m_FormationWobble{};

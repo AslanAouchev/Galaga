@@ -4,9 +4,8 @@
 #include "Scene.h"
 #include "HitboxComponent.h"
 
-dae::PlayerComponent::PlayerComponent(GameObject* pOwner, const std::string& textureFileName, const std::string& bulletTextureFileName, int health, float bulletSpeed,
-    GameObjectTag tag, GameObjectTag bulletTag, int scoreValue) :
-	Component(pOwner), m_MaxHealth{ health }, m_BulletString{ bulletTextureFileName }, m_Tag{ tag }, m_BulletTag{ bulletTag }, m_BulletSpeed{ bulletSpeed }, m_ScoreValue{ scoreValue }
+dae::PlayerComponent::PlayerComponent(GameObject* pOwner, const std::string& textureFileName, const std::string& bulletTextureFileName, int health, float bulletSpeed) :
+	Component(pOwner), m_MaxHealth{ health }, m_BulletString{ bulletTextureFileName }, m_BulletSpeed{ bulletSpeed }
 {
     m_pTexture = std::make_unique<TextureComponent>(textureFileName, pOwner);
 	GetOwner()->AddComponent<dae::HitboxComponent>(GetOwner());
@@ -56,6 +55,11 @@ void dae::PlayerComponent::Render() const
 
 void dae::PlayerComponent::TakeDamage(int amount)
 {
+    if (m_Paused || m_KilledPaused)
+    {
+        return;
+    }
+
     m_Health -= amount;
     ServiceLocator::getSoundSystem().play(5, 0.8f);
 
@@ -70,10 +74,22 @@ void dae::PlayerComponent::TakeDamage(int amount)
 
     if (m_Health <= 0)
     {
-        if (m_Tag == GameObjectTag::Enemy)
+        if (m_Tag == GameObjectTag::Bee)
         {
-            GetOwner()->TriggerEvent("EnemyKilled");
+            GetOwner()->TriggerEvent("EnemyKilledBee");
         }
+		else if (m_Tag == GameObjectTag::Butterfly)
+		{
+			GetOwner()->TriggerEvent("EnemyKilledButterfly");
+		}
+		else if (m_Tag == GameObjectTag::Boss)
+		{
+			GetOwner()->TriggerEvent("EnemyKilledBoss");
+		}
+		else if (m_Tag == GameObjectTag::Player)
+		{
+			GetOwner()->TriggerEvent("EnemyKilledEnemyPlayer");
+		}
         m_IsDead = true;
     }
 }
@@ -153,7 +169,7 @@ void dae::PlayerComponent::CheckCollisions()
 
             if (otherHitbox && otherPlayer)
             {
-                if (otherPlayer->GetTag() == GameObjectTag::Enemy)
+                if (otherPlayer->GetTag() != GameObjectTag::Player)
                 {
                     if (ourHitbox->IsOverlapping(otherHitbox))
                     {
@@ -164,7 +180,7 @@ void dae::PlayerComponent::CheckCollisions()
             }
         }
     }
-    else if (m_Tag == GameObjectTag::Enemy)
+    else if (m_Tag != GameObjectTag::Player)
     {
         for (const auto& gameObject : allGameObjects)
         {

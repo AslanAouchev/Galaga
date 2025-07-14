@@ -10,6 +10,14 @@ BeeAiControllerComponent::BeeAiControllerComponent(dae::GameObject* owner)
 {
     SetSpeed(120.0f);
     SetDiveCooldown(0.5f);
+    owner->AddComponent<dae::PlayerComponent>(owner, "enemy.png", "BulletEnemy.png", 1, 200.0f);
+
+    auto playerComp{ owner->GetComponent<dae::PlayerComponent>() };
+    if (playerComp)
+    {
+        playerComp->SetBulletTag(dae::BulletTag::EnemyBullet);
+        playerComp->SetTag(dae::GameObjectTag::Bee);
+    }
 }
 
 BeeAiControllerComponent::~BeeAiControllerComponent()

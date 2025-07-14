@@ -9,7 +9,14 @@ namespace dae
 	enum class GameObjectTag
 	{
 		Player,
-		Enemy,
+		Bee,
+		Boss,
+		Butterfly,
+		EnemyPlayer
+	};
+
+	enum class BulletTag
+	{
 		PlayerBullet,
 		EnemyBullet
 	};
@@ -20,8 +27,7 @@ namespace dae
 		void Update(const float deltaTime) override;
 		void Render() const override;
 
-		PlayerComponent(GameObject* pOwner, const std::string& textureFileName,const std::string& bulletTextureFileName, int health, float bulletSpeed = 400.f,
-			GameObjectTag tag = GameObjectTag::Player,GameObjectTag bulletTag = GameObjectTag::PlayerBullet, int scoreValue = 0);
+		PlayerComponent(GameObject* pOwner, const std::string& textureFileName,const std::string& bulletTextureFileName, int health, float bulletSpeed = 400.f);
 
 		PlayerComponent(const PlayerComponent& other) = delete;
 		PlayerComponent(PlayerComponent&& other) = delete;
@@ -35,8 +41,8 @@ namespace dae
 
 		GameObjectTag GetTag() const { return m_Tag; }
 		void SetTag(GameObjectTag tag) { m_Tag = tag; }
-		GameObjectTag GetBulletTag() const { return m_BulletTag; }
-		void SetBulletTag(GameObjectTag bulletTag) { m_BulletTag = bulletTag; }
+		BulletTag GetBulletTag() const { return m_BulletTag; }
+		void SetBulletTag(BulletTag bulletTag) { m_BulletTag = bulletTag; }
 
 		void OnNotify(const EventData& event) override;
 
@@ -48,11 +54,11 @@ namespace dae
 		int m_MaxHealth{};
 		bool m_IsDead{};
 		GameObjectTag m_Tag{ GameObjectTag::Player };
-		GameObjectTag m_BulletTag{ GameObjectTag::PlayerBullet };
+		BulletTag m_BulletTag{ BulletTag::PlayerBullet };
 
 		std::unique_ptr<dae::TextureComponent> m_pTexture{nullptr};
 
-		std::string m_BulletString;
+		std::string m_BulletString{""};
 		float m_FireCooldown{ 0.0f };
 		const float m_MaxFireCooldown{ 0.2f };
 		const float m_BulletSpeed{ 400.0f };

@@ -4,7 +4,7 @@
 #include "SceneManager.h"
 #include "Scene.h"
 
-dae::BulletComponent::BulletComponent(GameObject* pOwner, const std::string& textureFileName, GameObjectTag tag, float speed) :
+dae::BulletComponent::BulletComponent(GameObject* pOwner, const std::string& textureFileName, BulletTag tag, float speed) :
     Component(pOwner), m_Speed{ speed }
 {
     m_pTexture = std::make_unique<TextureComponent>(textureFileName, pOwner);
@@ -63,7 +63,7 @@ void dae::BulletComponent::CheckCollisions()
     auto& scene{ dae::SceneManager::GetInstance().GetActiveScene() };
     auto& allGameObjects{ scene.GetAllGameObjects() };
 
-    if (m_BulletTag == GameObjectTag::PlayerBullet)
+    if (m_BulletTag == BulletTag::PlayerBullet)
     {
         for (const auto& gameObject : allGameObjects)
         {
@@ -71,7 +71,7 @@ void dae::BulletComponent::CheckCollisions()
             const auto targetPlayer{gameObject->GetComponent<dae::PlayerComponent>()};
 
             if (targetHitbox && targetPlayer &&
-                targetPlayer->GetTag() == GameObjectTag::Enemy)
+                targetPlayer->GetTag() != GameObjectTag::Player)
             {
                 if (ourHitbox->IsOverlapping(targetHitbox))
                 {
@@ -83,7 +83,7 @@ void dae::BulletComponent::CheckCollisions()
             }
         }
     }
-    else if (m_BulletTag == GameObjectTag::EnemyBullet)
+    else if (m_BulletTag == BulletTag::EnemyBullet)
     {
         for (const auto& gameObject : allGameObjects)
         {

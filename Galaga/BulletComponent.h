@@ -6,14 +6,14 @@
 
 namespace dae
 {
-    enum class GameObjectTag;
+    enum class BulletTag;
 
     class BulletComponent final : public Component
     {
     public:
         void Update(const float deltaTime) override;
         void Render() const override;
-        BulletComponent(GameObject* pOwner, const std::string& textureFileName, GameObjectTag tag, float speed);
+        BulletComponent(GameObject* pOwner, const std::string& textureFileName, BulletTag tag, float speed);
         virtual ~BulletComponent() = default;
         BulletComponent(const BulletComponent& other) = delete;
         BulletComponent(BulletComponent&& other) = delete;
@@ -24,8 +24,8 @@ namespace dae
         bool IsDestroyed() const { return m_IsDestroyed; }
         void SetDirection(float x, float y) { m_DirectionX = x; m_DirectionY = y; }
 
-        GameObjectTag GetTag() const { return m_BulletTag; }
-        void SetTag(GameObjectTag tag) { m_BulletTag = tag; }
+        BulletTag GetTag() const { return m_BulletTag; }
+        void SetTag(BulletTag tag) { m_BulletTag = tag; }
 
     private:
         void CheckCollisions();
@@ -36,7 +36,7 @@ namespace dae
         float m_DirectionY{ -1.0f };
         bool m_IsOffScreen{ false };
         bool m_IsDestroyed{ false };
-        GameObjectTag m_BulletTag;
+        BulletTag m_BulletTag;
 
         std::unique_ptr<dae::TextureComponent> m_pTexture{ nullptr };
     };
