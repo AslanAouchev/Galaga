@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "Observer.h"
+#include <glm.hpp>
 #include "Font.h"
 
 class MenuItemComponent : public dae::Component, public Observer
@@ -21,9 +22,11 @@ public:
     int GetItemIndex() const { return m_ItemIndex; }
     bool IsSelected() const { return m_IsSelected; }
     void SetSelected(bool selected);
+    void HideToggle();
 
 private:
     int m_ItemIndex;
+	bool m_HideToggle{ false };
     bool m_IsSelected{ false };
     std::string m_OriginalText;
 

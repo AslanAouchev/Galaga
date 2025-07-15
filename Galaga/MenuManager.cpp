@@ -7,6 +7,7 @@ extern void loadSinglePlayer();
 extern void loadTwoPlayer();
 extern void loadPvP();
 extern void loadMainMenu();
+extern void loadHighScores();
 
 MenuManager::MenuManager(dae::GameObject* owner) : Component(owner)
 {
@@ -24,7 +25,6 @@ void MenuManager::OnNotify(const EventData& event)
 {
     if (event.eventType == "MenuUp")
     {
-		std::cout << "MenuManager::OnNotify: MenuUp" << std::endl;
         MoveUp();
     }
     else if (event.eventType == "MenuDown")
@@ -63,7 +63,8 @@ void MenuManager::Confirm()
     case 0: LoadScene(GameScene::SinglePlayer); break;
     case 1: LoadScene(GameScene::TwoPlayer); break;
     case 2: LoadScene(GameScene::PvP); break;
-    case 3: exit(0); break;
+	case 3: LoadScene(GameScene::HighScores); break;
+    case 4: exit(0); break;
     }
 }
 
@@ -82,13 +83,13 @@ void MenuManager::LoadScene(GameScene scene)
         loadTwoPlayer();
         sceneManager.SetActiveScene("TwoPlayer");
         break;
-
+    case GameScene::HighScores:
+        loadHighScores();
+        sceneManager.SetActiveScene("HighScore");
+        break;
     case GameScene::PvP:
         loadPvP();
         sceneManager.SetActiveScene("PvP");
-        break;
-    case GameScene::MainMenu:
-        sceneManager.SetActiveScene("MainMenu");
         break;
     }
 }

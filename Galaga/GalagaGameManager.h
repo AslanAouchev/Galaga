@@ -22,17 +22,11 @@ public:
 	virtual void Update(float ) override {}
 	virtual void Render() const override {}
 
-    void ShowPauseMenu();
-    void HidePauseMenu();
-    void HandlePauseMenuInput(const std::string& input);
-
 private:
-    bool m_ShowPauseMenu{ false };
     int m_PauseMenuSelection{ 0 };
 
     int m_Score{ 0 };
     int m_Lives{ 3 };
-    bool m_IsGameRunning{ true };
     bool m_IsGameOver{ false };
     bool m_IsPaused{ false };
     int m_EnemiesKilled{ 0 };
@@ -41,21 +35,17 @@ private:
     void HandlePlayerKilled(const EventData& event);
     void HandleEnemyKilled(const EventData& event);
 
-    void UpdateUI();
     void CheckLevelComplete();
 
     void OnNotify(const EventData& event) override;
 
     void SetScore(const EventData& event);
 
-    void StartGame();
     void PauseGame();
-    void ResumeGame();
     void EndGame();
     void ResetGame();
 
     void AddScore(int points);
     void SetLives(int lives) { m_Lives = lives; }
-
-    std::vector<dae::GameObject*> m_PausableObjects;
+    void UpdatePauseMenuSelection();
 };

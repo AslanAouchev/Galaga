@@ -30,6 +30,8 @@ void loadMainMenu()
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("MainMenu");
 	auto& input = dae::InputManager::GetInstance();
 
+	input.ClearBindings();
+
 	auto bg1 = std::make_unique<dae::GameObject>();
 	bg1->AddComponent<dae::TextureComponent>("background.png", bg1.get());
 	bg1->AddComponent<dae::BackgroundScrollComponent>(bg1.get(), 80.f, 480.f, 0.f);
@@ -57,7 +59,7 @@ void loadMainMenu()
 
 	font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 20);
 
-	std::vector<std::string> menuOptions = {"1 PLAYER","2 PLAYER","PvP","EXIT"};
+	std::vector<std::string> menuOptions = {"1 PLAYER","2 PLAYER","PvP", "High Scores","EXIT"};
 
 	for (int i{}; i < menuOptions.size(); ++i)
 	{
@@ -88,17 +90,12 @@ void loadSinglePlayer()
 
 	auto& input = dae::InputManager::GetInstance();
 
-	int numJoysticks = SDL_NumJoysticks();
-	std::cout << "Number of joysticks detected: " << numJoysticks << std::endl;
-
-	for (int i = 0; i < numJoysticks; i++) {
-		if (SDL_IsGameController(i)) {
-			std::cout << "Controller " << i << " is supported" << std::endl;
-		}
-	}
+	input.ClearBindings();
 
 	auto fo = std::make_unique<dae::GameObject>();
 	fo->AddComponent<GalagaGameManager>(fo.get());
+
+	fo->AddObserver(fo->GetComponent<GalagaGameManager>());
 
 	auto bg1 = std::make_unique<dae::GameObject>();
 	bg1->AddComponent<dae::TextureComponent>("background.png", bg1.get());
@@ -124,13 +121,24 @@ void loadSinglePlayer()
 	go->SetPosition(300, 400);
 	go->AddComponent<dae::PlayerComponent>(go.get(), "galaga.png", "Bullet.png", 10);
 	go->AddComponent<dae::BoundsComponent>(go.get(), 640.f, 480.f);
+
 	input.BindContinuousCommand(SDL_SCANCODE_A, std::make_unique<MoveLeftCommand>(go.get()));
 	input.BindContinuousCommand(SDL_SCANCODE_D, std::make_unique<MoveRightCommand>(go.get()));
 	input.BindCommand(SDL_SCANCODE_SPACE, std::make_unique<FireCommand>(go.get()));
-	input.BindCommand(SDL_SCANCODE_ESCAPE, std::make_unique<PauseCommand>(go.get()));
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, std::make_unique<MoveLeftCommand>(go.get()));
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, std::make_unique<MoveRightCommand>(go.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<FireCommand>(go.get()));
+
+	input.BindCommand(SDL_SCANCODE_ESCAPE, std::make_unique<PauseCommand>(fo.get()));
+	input.BindCommand(SDL_SCANCODE_UP, std::make_unique<UpUiCommand>(fo.get()));
+	input.BindCommand(SDL_SCANCODE_DOWN, std::make_unique<DownUiCommand>(fo.get()));
+	input.BindCommand(SDL_SCANCODE_W, std::make_unique<UpUiCommand>(fo.get()));
+	input.BindCommand(SDL_SCANCODE_S, std::make_unique<DownUiCommand>(fo.get()));
+	input.BindCommand(SDL_SCANCODE_RETURN, std::make_unique<ConfirmUiCommand>(fo.get()));
+	input.BindCommand(SDL_SCANCODE_SPACE, std::make_unique<ConfirmUiCommand>(fo.get()));
+	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(fo.get()));
+	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(fo.get()));
+	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(fo.get()));
 
 	go->AddObserver(fo.get()->GetComponent<Observer>());
 	fo->AddObserver(go.get()->GetComponent<Observer>());
@@ -148,6 +156,22 @@ void loadSinglePlayer()
 		fo->AddObserver(go.get()->GetComponent<BeeAiControllerComponent>());
 
 		scene.Add(std::move(go));
+	}
+
+	auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 24);
+	std::vector<std::string> pauseOptions = { "RESUME", "EXIT TO MAIN MENU" };
+
+	for (size_t i = 0; i < pauseOptions.size(); ++i)
+	{
+		auto pauseMenuItem = std::make_unique<dae::GameObject>();
+
+		pauseMenuItem->AddComponent<MenuItemComponent>(pauseMenuItem.get(),static_cast<int>(i),pauseOptions[i],font);
+
+		pauseMenuItem->SetPosition(250, static_cast<float>(240 + i * 40));
+		pauseMenuItem->GetComponent<MenuItemComponent>()->HideToggle();
+		fo->AddObserver(pauseMenuItem->GetComponent<MenuItemComponent>());
+
+		scene.Add(std::move(pauseMenuItem));
 	}
 
 	scene.Add(std::move(fo));
@@ -175,12 +199,30 @@ void loadTwoPlayer()
 {
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("TwoPlayer");
 	scene.RemoveAll();
+
+	auto& input = dae::InputManager::GetInstance();
+
+	input.ClearBindings();
 }
 
 void loadPvP()
 {
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("PvP");
 	scene.RemoveAll();
+
+	auto& input = dae::InputManager::GetInstance();
+
+	input.ClearBindings();
+}
+
+void loadHighScores()
+{
+	auto& scene = dae::SceneManager::GetInstance().CreateScene("HighScores");
+	scene.RemoveAll();
+
+	auto& input = dae::InputManager::GetInstance();
+
+	input.ClearBindings();
 }
 
 int main(int, char* [])

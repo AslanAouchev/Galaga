@@ -24,6 +24,7 @@ void MenuItemComponent::Update(float deltaTime)
 
 void MenuItemComponent::Render() const
 {
+
 }
 
 void MenuItemComponent::OnNotify(const EventData& event)
@@ -31,6 +32,14 @@ void MenuItemComponent::OnNotify(const EventData& event)
     if (event.eventType == "DeselectAll")
     {
         SetSelected(false);
+    }
+    else if (event.eventType == "PauseUI")
+    {
+        HideToggle();
+    }
+    else if (event.eventType == "Resume")
+    {
+        HideToggle();
     }
     else if (event.eventType == "Select" + std::to_string(m_ItemIndex))
     {
@@ -47,6 +56,12 @@ void MenuItemComponent::SetSelected(bool selected)
         m_ShowBlink = true;
         UpdateTextDisplay();
     }
+}
+
+void MenuItemComponent::HideToggle()
+{
+	m_HideToggle = !m_HideToggle;
+    GetOwner()->SetPosition(GetOwner()->GetTransform().GetPosition().x, GetOwner()->GetTransform().GetPosition().y + (m_HideToggle ? 1 : -1) * 10000);
 }
 
 void MenuItemComponent::UpdateVisualFeedback(float deltaTime)

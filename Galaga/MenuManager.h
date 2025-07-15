@@ -5,11 +5,10 @@
 
 enum class GameScene
 {
-    MainMenu,
     SinglePlayer,
     TwoPlayer,
     PvP,
-    Paused
+	HighScores
 };
 
 class MenuManager : public dae::Component, public Observer
@@ -28,9 +27,8 @@ public:
     void Confirm();
 
 private:
-    std::vector<MenuItemComponent*> m_MenuItems;
     int m_CurrentSelection{ 0 };
-    int m_MenuItemCount{ 4 };
+    int m_MenuItemCount{ 5 };
 
     void LoadScene(GameScene scene);
 };

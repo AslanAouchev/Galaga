@@ -128,7 +128,7 @@ void dae::PlayerComponent::OnNotify(const EventData& event)
 		m_KilledPaused = false;
 		m_KilledPauseTimer = 0.0f;
 	}
-	else if (event.eventType == "Pause")
+	else if (event.eventType == "PauseUI")
 	{
 		m_Paused = true;
 	}

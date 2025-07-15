@@ -10,15 +10,10 @@ GalagaGameManager::GalagaGameManager(dae::GameObject* pOwner) : dae::Component(p
 
 void GalagaGameManager::OnNotify(const EventData& event)
 {
-    if (!m_IsGameRunning && event.eventType != "Pause")
-    {
-        return;
-    }
-
     if (event.eventType == "PlayerHit")
     {
         HandlePlayerKilled(event);
-		GetOwner()->TriggerEvent("PlayerHit");
+        GetOwner()->TriggerEvent("PlayerHit");
     }
     else if (event.eventType == "ResumeKilled")
     {
@@ -31,60 +26,57 @@ void GalagaGameManager::OnNotify(const EventData& event)
     }
     else if (event.eventType == "Pause")
     {
-		if (!m_IsPaused && m_IsGameRunning)
-		{
+        if (!m_IsPaused)
+        {
             PauseGame();
-            ShowPauseMenu();
-            GetOwner()->TriggerEvent("Pause");
-		}
+            GetOwner()->TriggerEvent("PauseUI");
+        }
         else if (m_IsPaused)
         {
-            if (m_ShowPauseMenu)
+            GetOwner()->TriggerEvent("Resume");
+        }
+    }
+    else if (event.eventType == "MenuUp")
+    {
+        if (m_IsPaused)
+        {
+            m_PauseMenuSelection = (m_PauseMenuSelection - 1 + 2) % 2;
+            UpdatePauseMenuSelection();
+        }
+    }
+    else if (event.eventType == "MenuDown")
+    {
+        if (m_IsPaused)
+        {
+            m_PauseMenuSelection = (m_PauseMenuSelection + 1) % 2;
+            UpdatePauseMenuSelection();
+        }
+    }
+    else if (event.eventType == "MenuConfirm")
+    {
+        if (m_IsPaused)
+        {
+            if (m_PauseMenuSelection == 0)
             {
-                HidePauseMenu();
-                ResumeGame();
+                m_IsPaused = false;
                 GetOwner()->TriggerEvent("Resume");
             }
-        }
-        else
-        {
-			ResumeGame();
-            GetOwner()->TriggerEvent("Resume");
-        }
-    }
-    else if (event.eventType == "PauseMenuUp")
-    {
-        m_PauseMenuSelection = (m_PauseMenuSelection - 1 + 2) % 2;
-    }
-    else if (event.eventType == "PauseMenuDown")
-    {
-        m_PauseMenuSelection = (m_PauseMenuSelection + 1) % 2;
-    }
-    else if (event.eventType == "PauseMenuConfirm")
-    {
-        if (m_PauseMenuSelection == 0)
-        {
-            HidePauseMenu();
-            ResumeGame();
-            GetOwner()->TriggerEvent("Resume");
-        }
-        else
-        {
-            auto& sceneManager = dae::SceneManager::GetInstance();
-            sceneManager.SetActiveScene("MainMenu");
+            else
+            {
+                auto& sceneManager = dae::SceneManager::GetInstance();
+
+                extern void loadMainMenu();
+                loadMainMenu();
+                sceneManager.SetActiveScene("MainMenu");
+            }
         }
     }
 }
 
-void GalagaGameManager::ShowPauseMenu()
+void GalagaGameManager::UpdatePauseMenuSelection()
 {
-    m_ShowPauseMenu = true;
-    m_PauseMenuSelection = 0;
-}
-
-void GalagaGameManager::HidePauseMenu()
-{
-    m_ShowPauseMenu = false;
+    GetOwner()->TriggerEvent("DeselectAll");
+    GetOwner()->TriggerEvent("Select" + std::to_string(m_PauseMenuSelection));
 }
 
 void GalagaGameManager::SetScore(const EventData& event)
@@ -92,39 +84,16 @@ void GalagaGameManager::SetScore(const EventData& event)
     AddScore(event.gameObject->GetComponent<dae::PlayerComponent>()->GetScore());
 }
 
-void GalagaGameManager::StartGame()
-{
-    m_IsGameRunning = true;
-    m_IsGameOver = false;
-    m_IsPaused = false;
-    UpdateUI();
-}
-
 void GalagaGameManager::PauseGame()
 {
-    if (m_IsGameRunning && !m_IsPaused)
-    {
-        m_IsPaused = true;
-        m_IsGameRunning = false;
-        UpdateUI();
-    }
-}
-
-void GalagaGameManager::ResumeGame()
-{
-    if (m_IsPaused)
-    {
-        m_IsPaused = false;
-        m_IsGameRunning = true;
-        UpdateUI();
-    }
+    m_IsPaused = true;
+    m_PauseMenuSelection = 0;
+    UpdatePauseMenuSelection();
 }
 
 void GalagaGameManager::EndGame()
 {
-    m_IsGameRunning = false;
     m_IsGameOver = true;
-    UpdateUI();
 }
 
 void GalagaGameManager::ResetGame()
@@ -134,14 +103,11 @@ void GalagaGameManager::ResetGame()
     m_EnemiesKilled = 0;
     m_IsGameOver = false;
     m_IsPaused = false;
-    m_IsGameRunning = true;
-    UpdateUI();
 }
 
 void GalagaGameManager::AddScore(int points)
 {
     m_Score += points;
-    UpdateUI();
 }
 
 void GalagaGameManager::HandlePlayerKilled(const EventData& )
@@ -151,8 +117,6 @@ void GalagaGameManager::HandlePlayerKilled(const EventData& )
     {
         EndGame();
     }
-
-    UpdateUI();
 }
 
 void GalagaGameManager::HandleEnemyKilled(const EventData& )
@@ -162,18 +126,6 @@ void GalagaGameManager::HandleEnemyKilled(const EventData& )
     //AddScore(points);
 
     CheckLevelComplete();
-}
-
-void GalagaGameManager::UpdateUI()
-{
-    if (m_IsPaused)
-    {
-        ;
-    }
-    if (m_IsGameOver)
-    {
-        ;
-    }
 }
 
 void GalagaGameManager::CheckLevelComplete()

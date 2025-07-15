@@ -23,7 +23,7 @@ namespace dae
         {
             m_KilledPaused = false;
         }
-        else if (event.eventType == "Pause")
+        else if (event.eventType == "PauseUI")
         {
             m_Paused = true;
         }
