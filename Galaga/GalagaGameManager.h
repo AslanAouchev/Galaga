@@ -22,7 +22,14 @@ public:
 	virtual void Update(float ) override {}
 	virtual void Render() const override {}
 
+    void ShowPauseMenu();
+    void HidePauseMenu();
+    void HandlePauseMenuInput(const std::string& input);
+
 private:
+    bool m_ShowPauseMenu{ false };
+    int m_PauseMenuSelection{ 0 };
+
     int m_Score{ 0 };
     int m_Lives{ 3 };
     bool m_IsGameRunning{ true };

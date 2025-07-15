@@ -1,6 +1,5 @@
 #include <SDL.h>
 #include "InputManager.h"
-#include <backends/imgui_impl_sdl2.h>
 #include <iostream>
 #include <unordered_map>
 
@@ -42,7 +41,6 @@ public:
             {
                 HandleControllerDisconnection();
             }
-            ImGui_ImplSDL2_ProcessEvent(&e);
         }
         return true;
     }

@@ -12,9 +12,15 @@ public:
     {
         if (GetGameObject())
         {
-            const auto transform{ GetGameObject()->GetTransform() };
-            const auto pos{ transform.GetPosition() };
-            GetGameObject()->SetPosition(pos.x - 200.f, pos.y);
+            if (auto playerComp{ GetGameObject()->GetComponent<dae::PlayerComponent>() })
+            {
+                if(!playerComp->GetPaused() && !playerComp->GetKilledPaused())
+                {
+                    const auto transform{ GetGameObject()->GetTransform() };
+                    const auto pos{ transform.GetPosition() };
+                    GetGameObject()->SetPosition(pos.x - 200.f, pos.y);
+                }
+            }
         }
     }
 
@@ -22,9 +28,15 @@ public:
     {
         if (GetGameObject())
         {
-            const auto transform{ GetGameObject()->GetTransform() };
-            const auto pos{ transform.GetPosition() };
-            GetGameObject()->SetPosition(pos.x - 200.f * deltaTime, pos.y);
+            if (auto playerComp{ GetGameObject()->GetComponent<dae::PlayerComponent>() })
+            {
+                if (!playerComp->GetPaused() && !playerComp->GetKilledPaused())
+                {
+                    const auto transform{ GetGameObject()->GetTransform() };
+                    const auto pos{ transform.GetPosition() };
+                    GetGameObject()->SetPosition(pos.x - 200.f * deltaTime, pos.y);
+                }
+            }
         }
     }
 };
@@ -38,9 +50,15 @@ public:
     {
         if (GetGameObject())
         {
-            const auto transform{ GetGameObject()->GetTransform() };
-            const auto pos{ transform.GetPosition() };
-            GetGameObject()->SetPosition(pos.x + 200.f, pos.y);
+            if (auto playerComp{ GetGameObject()->GetComponent<dae::PlayerComponent>() })
+            {
+                if (!playerComp->GetPaused() && !playerComp->GetKilledPaused())
+                {
+                    const auto transform{ GetGameObject()->GetTransform() };
+                    const auto pos{ transform.GetPosition() };
+                    GetGameObject()->SetPosition(pos.x + 200.f, pos.y);
+                }
+            }
         }
     }
 
@@ -48,9 +66,15 @@ public:
     {
         if (GetGameObject())
         {
-            const auto transform{ GetGameObject()->GetTransform() };
-            const auto pos{ transform.GetPosition() };
-            GetGameObject()->SetPosition(pos.x + 200.f * deltaTime, pos.y);
+            if (auto playerComp{ GetGameObject()->GetComponent<dae::PlayerComponent>() })
+            {
+                if (!playerComp->GetPaused() && !playerComp->GetKilledPaused())
+                {
+                    const auto transform{ GetGameObject()->GetTransform() };
+                    const auto pos{ transform.GetPosition() };
+                    GetGameObject()->SetPosition(pos.x + 200.f * deltaTime, pos.y);
+                }
+            }
         }
     }
 };
@@ -92,6 +116,66 @@ public:
         if (GetGameObject())
         {
 			GetGameObject()->TriggerEvent("Pause");
+        }
+    }
+
+    virtual void Execute(float) override
+    {
+
+    }
+};
+
+class UpUiCommand : public GameObjectCommand
+{
+public:
+
+    UpUiCommand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
+
+    virtual void Execute() override
+    {
+        if (GetGameObject())
+        {
+            GetGameObject()->TriggerEvent("MenuUp");
+        }
+    }
+
+    virtual void Execute(float) override
+    {
+
+    }
+};
+
+class DownUiCommand : public GameObjectCommand
+{
+public:
+
+    DownUiCommand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
+
+    virtual void Execute() override
+    {
+        if (GetGameObject())
+        {
+            GetGameObject()->TriggerEvent("MenuDown");
+        }
+    }
+
+    virtual void Execute(float) override
+    {
+
+    }
+};
+
+class ConfirmUiCommand : public GameObjectCommand
+{
+public:
+
+    ConfirmUiCommand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
+
+    virtual void Execute() override
+    {
+        if (GetGameObject())
+        {
+            GetGameObject()->TriggerEvent("MenuConfirm");
         }
     }
 

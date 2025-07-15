@@ -120,7 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdParty\imgui;$(SolutionDir)3rdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -170,7 +170,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)3rdParty\imgui;$(SolutionDir)3rdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -189,16 +189,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\3rdParty\imgui\backends\imgui_impl_opengl3.h" />
-    <ClInclude Include="..\3rdParty\imgui\backends\imgui_impl_sdl2.h" />
-    <ClInclude Include="..\3rdParty\imgui\imconfig.h" />
-    <ClInclude Include="..\3rdParty\imgui\imgui.h" />
-    <ClInclude Include="..\3rdParty\imgui\imgui_internal.h" />
-    <ClInclude Include="..\3rdParty\imgui\implot.h" />
-    <ClInclude Include="..\3rdParty\imgui\implot_internal.h" />
-    <ClInclude Include="..\3rdParty\imgui\imstb_rectpack.h" />
-    <ClInclude Include="..\3rdParty\imgui\imstb_textedit.h" />
-    <ClInclude Include="..\3rdParty\imgui\imstb_truetype.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="HitboxComponent.h" />
     <ClInclude Include="Observer.h" />
@@ -219,14 +209,6 @@
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\3rdParty\imgui\backends\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\backends\imgui_impl_sdl2.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\imgui.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\imgui_tables.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\implot.cpp" />
-    <ClCompile Include="..\3rdParty\imgui\implot_items.cpp" />
     <ClCompile Include="BackgroundScrollComponent.cpp" />
     <ClCompile Include="BackgroundScrollComponent.h" />
     <ClCompile Include="BoundsComponent.cpp" />

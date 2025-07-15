@@ -54,6 +54,12 @@
     <ClCompile Include="GalagaGameManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MenuManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuItemComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Minigin\BeeAiControllerComponent.h">
@@ -72,6 +78,12 @@
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="GalagaGameManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuItemComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

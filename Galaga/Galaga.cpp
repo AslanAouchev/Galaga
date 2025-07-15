@@ -22,10 +22,69 @@
 #include <BoundsComponent.h>
 #include <BeeAiControllerComponent.h>
 #include "GalagaGameManager.h"
+#include "MenuManager.h"
+#include "MenuItemComponent.h"
 
-void load()
+void loadMainMenu()
 {
-	auto& scene = dae::SceneManager::GetInstance().CreateScene("Demo");
+	auto& scene = dae::SceneManager::GetInstance().CreateScene("MainMenu");
+	auto& input = dae::InputManager::GetInstance();
+
+	auto bg1 = std::make_unique<dae::GameObject>();
+	bg1->AddComponent<dae::TextureComponent>("background.png", bg1.get());
+	bg1->AddComponent<dae::BackgroundScrollComponent>(bg1.get(), 80.f, 480.f, 0.f);
+	bg1->SetPosition(0, 0);
+
+	scene.Add(std::move(bg1));
+
+	auto bg2 = std::make_unique<dae::GameObject>();
+	bg2->AddComponent<dae::TextureComponent>("background.png", bg2.get());
+	bg2->AddComponent<dae::BackgroundScrollComponent>(bg2.get(), 80.f, 480.f, -480.f);
+	bg2->SetPosition(0, -480);
+
+	scene.Add(std::move(bg2));
+
+	auto menuManager = std::make_unique<dae::GameObject>();
+	menuManager->AddComponent<MenuManager>(menuManager.get());
+
+	menuManager->AddObserver(menuManager->GetComponent<MenuManager>());
+
+	auto titleText = std::make_unique<dae::GameObject>();
+	auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
+	titleText->AddComponent<dae::TextComponent>("GALAGA", font, titleText.get());
+	titleText->SetPosition(250, 100);
+	scene.Add(std::move(titleText));
+
+	font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 20);
+
+	std::vector<std::string> menuOptions = {"1 PLAYER","2 PLAYER","PvP","EXIT"};
+
+	for (int i{}; i < menuOptions.size(); ++i)
+	{
+		auto menuItem = std::make_unique<dae::GameObject>();
+		menuItem->AddComponent<MenuItemComponent>(menuItem.get(), static_cast<int>(i), menuOptions[i], font);
+		menuItem->SetPosition(250, static_cast<float>(200 + i * 40));
+
+		menuManager->AddObserver(menuItem->GetComponent<MenuItemComponent>());
+		scene.Add(std::move(menuItem));
+	}
+
+	input.BindCommand(SDL_SCANCODE_UP, std::make_unique<UpUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_SCANCODE_DOWN, std::make_unique<DownUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_SCANCODE_W, std::make_unique<UpUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_SCANCODE_S, std::make_unique<DownUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_SCANCODE_RETURN, std::make_unique<ConfirmUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_SCANCODE_SPACE, std::make_unique<ConfirmUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(menuManager.get()));
+
+	scene.Add(std::move(menuManager));
+}
+
+void loadSinglePlayer()
+{
+	auto& scene = dae::SceneManager::GetInstance().CreateScene("SinglePlayer");
 
 	auto& input = dae::InputManager::GetInstance();
 
@@ -53,7 +112,7 @@ void load()
 	auto bg2 = std::make_unique<dae::GameObject>();
 	bg2->AddComponent<dae::TextureComponent>("background.png", bg2.get());
 	bg2->AddComponent<dae::BackgroundScrollComponent>(bg2.get(), 80.f, 480.f, -480.f);
-	bg2->SetPosition(0,-480);
+	bg2->SetPosition(0, -480);
 
 	fo->AddObserver(bg2.get()->GetComponent<Observer>());
 
@@ -112,10 +171,22 @@ void load()
 	soundSystem.registerSound(14, "../Data/Tractor_Beam.wav");
 }
 
+void loadTwoPlayer()
+{
+	auto& scene = dae::SceneManager::GetInstance().CreateScene("TwoPlayer");
+	scene.RemoveAll();
+}
+
+void loadPvP()
+{
+	auto& scene = dae::SceneManager::GetInstance().CreateScene("PvP");
+	scene.RemoveAll();
+}
+
 int main(int, char* [])
 {
 	dae::Minigin engine("../Data/");
-	engine.Run(load);
+	engine.Run(loadMainMenu);
 
 	return 0;
 }

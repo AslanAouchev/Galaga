@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include <PlayerComponent.h>
 #include <BackgroundScrollComponent.h>
+#include "SceneManager.h"
 
 GalagaGameManager::GalagaGameManager(dae::GameObject* pOwner) : dae::Component(pOwner)
 {
@@ -32,15 +33,58 @@ void GalagaGameManager::OnNotify(const EventData& event)
     {
 		if (!m_IsPaused && m_IsGameRunning)
 		{
-			PauseGame();
+            PauseGame();
+            ShowPauseMenu();
             GetOwner()->TriggerEvent("Pause");
 		}
+        else if (m_IsPaused)
+        {
+            if (m_ShowPauseMenu)
+            {
+                HidePauseMenu();
+                ResumeGame();
+                GetOwner()->TriggerEvent("Resume");
+            }
+        }
         else
         {
 			ResumeGame();
             GetOwner()->TriggerEvent("Resume");
         }
     }
+    else if (event.eventType == "PauseMenuUp")
+    {
+        m_PauseMenuSelection = (m_PauseMenuSelection - 1 + 2) % 2;
+    }
+    else if (event.eventType == "PauseMenuDown")
+    {
+        m_PauseMenuSelection = (m_PauseMenuSelection + 1) % 2;
+    }
+    else if (event.eventType == "PauseMenuConfirm")
+    {
+        if (m_PauseMenuSelection == 0)
+        {
+            HidePauseMenu();
+            ResumeGame();
+            GetOwner()->TriggerEvent("Resume");
+        }
+        else
+        {
+            auto& sceneManager = dae::SceneManager::GetInstance();
+            sceneManager.SetActiveScene("MainMenu");
+        }
+    }
+}
+
+void GalagaGameManager::ShowPauseMenu()
+{
+    m_ShowPauseMenu = true;
+    m_PauseMenuSelection = 0;
+}
+
+void GalagaGameManager::HidePauseMenu()
+{
+    m_ShowPauseMenu = false;
 }
 
 void GalagaGameManager::SetScore(const EventData& event)

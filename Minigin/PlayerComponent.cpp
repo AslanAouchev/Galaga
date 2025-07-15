@@ -92,8 +92,6 @@ bool dae::PlayerComponent::Fire()
         return false;
     }
 
-	std::cout << m_Paused << " " << m_KilledPaused << std::endl;
-
     if (m_FireCooldown <= 0.0f)
     {
         auto bullet{ std::make_unique<dae::GameObject>() };
@@ -132,8 +130,12 @@ void dae::PlayerComponent::OnNotify(const EventData& event)
 	}
 	else if (event.eventType == "Pause")
 	{
-		m_Paused = !m_Paused;
+		m_Paused = true;
 	}
+    else if (event.eventType == "Resume")
+    {
+        m_Paused = false;
+    }
     else if (event.eventType == "Reset")
     {
         m_Health = m_MaxHealth;

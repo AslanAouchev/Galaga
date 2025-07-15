@@ -45,6 +45,8 @@ namespace dae
 		void SetBulletTag(BulletTag bulletTag) { m_BulletTag = bulletTag; }
 		int GetScore() const { return m_ScoreValue; }
 		void SetScore(int score) { m_ScoreValue = score; }
+		bool GetPaused() { return m_Paused; }
+		bool GetKilledPaused() { return m_KilledPaused; }
 
 		void OnNotify(const EventData& event) override;
 
