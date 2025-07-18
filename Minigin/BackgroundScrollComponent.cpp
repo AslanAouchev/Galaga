@@ -15,7 +15,7 @@ namespace dae
 
     void BackgroundScrollComponent::OnNotify(const EventData& event)
     {
-        if (event.eventType == "PlayerHit")
+        if (event.eventType == "ManagerPlayerHit")
         {
             m_KilledPaused = true;
         }

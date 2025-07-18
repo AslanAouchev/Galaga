@@ -2,6 +2,9 @@
 #include "GameObjectCommand.h"
 #include "PlayerComponent.h"
 #include <SDLSoundSystem.h>
+#include "SceneManager.h"
+
+extern void loadMainMenu();
 
 class MoveLeftCommand : public GameObjectCommand
 {
@@ -176,6 +179,28 @@ public:
         if (GetGameObject())
         {
             GetGameObject()->TriggerEvent("MenuConfirm");
+        }
+    }
+
+    virtual void Execute(float) override
+    {
+
+    }
+};
+
+class ReturnToMenuCommand : public GameObjectCommand
+{
+public:
+
+    ReturnToMenuCommand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
+
+    virtual void Execute() override
+    {
+        if (GetGameObject())
+        {
+            loadMainMenu();
+			auto& sceneManager = dae::SceneManager::GetInstance();
+            sceneManager.SetActiveScene("MainMenu");
         }
     }
 

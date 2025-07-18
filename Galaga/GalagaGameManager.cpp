@@ -3,7 +3,7 @@
 #include <PlayerComponent.h>
 #include <BackgroundScrollComponent.h>
 #include "SceneManager.h"
-
+#include "HighScoreManager.h"
 GalagaGameManager::GalagaGameManager(dae::GameObject* pOwner) : dae::Component(pOwner)
 {
 }
@@ -13,16 +13,15 @@ void GalagaGameManager::OnNotify(const EventData& event)
     if (event.eventType == "PlayerHit")
     {
         HandlePlayerKilled(event);
-        GetOwner()->TriggerEvent("PlayerHit");
+        GetOwner()->TriggerEvent("ManagerPlayerHit");
     }
-    else if (event.eventType == "ResumeKilled")
+    else if (event.eventType == "PlayerKilled")
     {
         GetOwner()->TriggerEvent("ResumeKilled");
     }
     else if (event.eventType == "EnemyKilled")
     {
         HandleEnemyKilled(event);
-        GetOwner()->TriggerEvent("EnemyKilled");
     }
     else if (event.eventType == "Pause")
     {
@@ -94,6 +93,33 @@ void GalagaGameManager::PauseGame()
 void GalagaGameManager::EndGame()
 {
     m_IsGameOver = true;
+
+    auto& highScoreManager = HighScoreManager::GetInstance();
+
+    if (highScoreManager.IsHighScore(m_Score))
+    {
+        int position = highScoreManager.GetHighScorePosition(m_Score);
+        std::cout << "NEW HIGH SCORE! Position " << position << std::endl;
+
+        std::string playerName = "AAA";
+        OnNameInputComplete(playerName);
+    }
+    else
+    {
+        extern void loadHighScores();
+        loadHighScores();
+    }
+}
+
+void GalagaGameManager::OnNameInputComplete(const std::string& name)
+{
+    auto& highScoreManager = HighScoreManager::GetInstance();
+    highScoreManager.AddHighScore(name, m_Score);
+
+    std::cout << "High score saved " << name << " - " << m_Score << std::endl;
+
+    extern void loadHighScores();
+    loadHighScores();
 }
 
 void GalagaGameManager::ResetGame()
@@ -132,6 +158,11 @@ void GalagaGameManager::CheckLevelComplete()
 {
     if (m_EnemiesKilled >= m_TotalEnemies)
     {
+        
         AddScore(1000);
+
+        std::cout << "Enemy killed, total enemies killed: " << m_EnemiesKilled << std::endl;
+        std::cout << "Total enemies: " << m_Score << std::endl;
+        EndGame();
     }
 }

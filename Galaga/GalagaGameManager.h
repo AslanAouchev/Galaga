@@ -22,6 +22,8 @@ public:
 	virtual void Update(float ) override {}
 	virtual void Render() const override {}
 
+    void OnNameInputComplete(const std::string& name);
+
 private:
     int m_PauseMenuSelection{ 0 };
 

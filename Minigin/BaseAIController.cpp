@@ -149,7 +149,7 @@ float BaseAIController::GetDistanceToPlayer(dae::GameObject* player) const
 
 void BaseAIController::OnNotify(const EventData& event)
 {
-    if (event.eventType == "PlayerHit")
+    if (event.eventType == "ManagerPlayerHit")
     {
         SetState(m_CurrentState->CreateInDeadPlayerFormationState());
     }

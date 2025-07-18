@@ -24,6 +24,7 @@
 #include "GalagaGameManager.h"
 #include "MenuManager.h"
 #include "MenuItemComponent.h"
+#include "HighScoreManager.h"
 
 void loadMainMenu()
 {
@@ -76,10 +77,10 @@ void loadMainMenu()
 	input.BindCommand(SDL_SCANCODE_W, std::make_unique<UpUiCommand>(menuManager.get()));
 	input.BindCommand(SDL_SCANCODE_S, std::make_unique<DownUiCommand>(menuManager.get()));
 	input.BindCommand(SDL_SCANCODE_RETURN, std::make_unique<ConfirmUiCommand>(menuManager.get()));
-	input.BindCommand(SDL_SCANCODE_SPACE, std::make_unique<ConfirmUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_SCANCODE_KP_ENTER, std::make_unique<ConfirmUiCommand>(menuManager.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(menuManager.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(menuManager.get()));
-	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_CONTROLLER_BUTTON_START, std::make_unique<ConfirmUiCommand>(menuManager.get()));
 
 	scene.Add(std::move(menuManager));
 }
@@ -135,10 +136,10 @@ void loadSinglePlayer()
 	input.BindCommand(SDL_SCANCODE_W, std::make_unique<UpUiCommand>(fo.get()));
 	input.BindCommand(SDL_SCANCODE_S, std::make_unique<DownUiCommand>(fo.get()));
 	input.BindCommand(SDL_SCANCODE_RETURN, std::make_unique<ConfirmUiCommand>(fo.get()));
-	input.BindCommand(SDL_SCANCODE_SPACE, std::make_unique<ConfirmUiCommand>(fo.get()));
+	input.BindCommand(SDL_SCANCODE_KP_ENTER, std::make_unique<ConfirmUiCommand>(fo.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(fo.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(fo.get()));
-	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(fo.get()));
+	input.BindCommand(SDL_CONTROLLER_BUTTON_START, std::make_unique<ConfirmUiCommand>(fo.get()));
 
 	go->AddObserver(fo.get()->GetComponent<Observer>());
 	fo->AddObserver(go.get()->GetComponent<Observer>());
@@ -161,7 +162,7 @@ void loadSinglePlayer()
 	auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 24);
 	std::vector<std::string> pauseOptions = { "RESUME", "EXIT TO MAIN MENU" };
 
-	for (size_t i = 0; i < pauseOptions.size(); ++i)
+	for (int i{}; i < pauseOptions.size(); ++i)
 	{
 		auto pauseMenuItem = std::make_unique<dae::GameObject>();
 
@@ -218,11 +219,72 @@ void loadPvP()
 void loadHighScores()
 {
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("HighScores");
-	scene.RemoveAll();
-
 	auto& input = dae::InputManager::GetInstance();
-
 	input.ClearBindings();
+
+	auto bg1 = std::make_unique<dae::GameObject>();
+	bg1->AddComponent<dae::TextureComponent>("background.png", bg1.get());
+	bg1->AddComponent<dae::BackgroundScrollComponent>(bg1.get(), 40.f, 480.f, 0.f);
+	bg1->SetPosition(0, 0);
+	scene.Add(std::move(bg1));
+
+	auto bg2 = std::make_unique<dae::GameObject>();
+	bg2->AddComponent<dae::TextureComponent>("background.png", bg2.get());
+	bg2->AddComponent<dae::BackgroundScrollComponent>(bg2.get(), 40.f, 480.f, -480.f);
+	bg2->SetPosition(0, -480);
+	scene.Add(std::move(bg2));
+
+	auto& highScoreManager = HighScoreManager::GetInstance();
+	auto scores = highScoreManager.GetTopScores();
+
+	auto titleText = std::make_unique<dae::GameObject>();
+	auto titleFont = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
+	titleText->AddComponent<dae::TextComponent>("HIGH SCORES", titleFont, titleText.get());
+	titleText->SetPosition(200, 80);
+	scene.Add(std::move(titleText));
+
+	auto scoreFont = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 24);
+
+	if (!scores.empty())
+	{
+		for (int i{}; i < scores.size(); ++i)
+		{
+			auto rankNameText = std::make_unique<dae::GameObject>();
+			std::string rankName = std::to_string(i + 1) + ". " + scores[i].playerName;
+			rankNameText->AddComponent<dae::TextComponent>(rankName, scoreFont, rankNameText.get());
+			rankNameText->SetPosition(150, static_cast<float>(150 + i * 35));
+			scene.Add(std::move(rankNameText));
+
+			auto scoreText = std::make_unique<dae::GameObject>();
+			std::string scoreStr = std::to_string(scores[i].score);
+			scoreText->AddComponent<dae::TextComponent>(scoreStr, scoreFont, scoreText.get());
+			scoreText->SetPosition(400, static_cast<float>(150 + i * 35));
+			scene.Add(std::move(scoreText));
+		}
+	}
+	else
+	{
+		auto noScoresText = std::make_unique<dae::GameObject>();
+		noScoresText->AddComponent<dae::TextComponent>("No high scores yet", scoreFont, noScoresText.get());
+		noScoresText->SetPosition(200, 200);
+		scene.Add(std::move(noScoresText));
+
+		auto playText = std::make_unique<dae::GameObject>();
+		playText->AddComponent<dae::TextComponent>("Play the game to set a high score", scoreFont, playText.get());
+		playText->SetPosition(150, 240);
+		scene.Add(std::move(playText));
+	}
+
+	auto instructionText = std::make_unique<dae::GameObject>();
+	auto instructionFont = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 20);
+	instructionText->AddComponent<dae::TextComponent>("Press ESC or B to return to main menu", instructionFont, instructionText.get());
+	instructionText->SetPosition(150, 420);
+	scene.Add(std::move(instructionText));
+
+	auto inputHandler = std::make_unique<dae::GameObject>();
+	input.BindCommand(SDL_SCANCODE_ESCAPE, std::make_unique<ReturnToMenuCommand>(inputHandler.get()));
+	input.BindCommand(SDL_CONTROLLER_BUTTON_B, std::make_unique<ReturnToMenuCommand>(inputHandler.get()));
+	scene.Add(std::move(inputHandler));
 }
 
 int main(int, char* [])

@@ -190,7 +190,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Command.h" />
+    <ClInclude Include="HighScoreManager.h" />
     <ClInclude Include="HitboxComponent.h" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="Observer.h" />
     <ClInclude Include="SDLSoundSystem.h" />
     <ClInclude Include="Font.h" />
@@ -219,6 +221,7 @@
     <ClCompile Include="FpsComponent.cpp" />
     <ClCompile Include="FpsComponent.h" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="HighScoreManager.cpp" />
     <ClCompile Include="HitboxComponent.cpp" />
     <ClCompile Include="InputManager.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)3rdParty\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

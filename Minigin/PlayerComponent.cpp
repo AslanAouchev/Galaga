@@ -16,7 +16,7 @@ void dae::PlayerComponent::Update(const float deltaTime)
 {
     UpdateKilledPause(deltaTime);
 
-    if (m_Paused || m_KilledPaused) 
+    if (m_Paused || m_KilledPaused || m_IsDead)
     {
         return;
     }
@@ -29,12 +29,6 @@ void dae::PlayerComponent::Update(const float deltaTime)
     if (m_FireCooldown > 0.0f)
     {
         m_FireCooldown -= deltaTime;
-    }
-
-    if (m_IsDead && m_Tag != GameObjectTag::Player)
-    {
-        GetOwner()->SetActive(false);
-        return;
     }
 
     CheckCollisions();
@@ -82,6 +76,12 @@ void dae::PlayerComponent::TakeDamage(int amount)
 			GetOwner()->TriggerEvent("EnemyKilled");
 		}
         m_IsDead = true;
+    
+        if (m_Tag != GameObjectTag::Player)
+        {
+            GetOwner()->SetActive(false);
+            return;
+        }
     }
 }
 
@@ -118,15 +118,10 @@ glm::vec2 dae::PlayerComponent::GetTextureSize() const
 
 void dae::PlayerComponent::OnNotify(const EventData& event)
 {
-	if (event.eventType == "PlayerHit")
+	if (event.eventType == "ManagerPlayerHit")
 	{
         m_KilledPaused = true;
         m_KilledPauseTimer = 5.f;
-	}
-	else if (event.eventType == "ResumeKillled")
-	{
-		m_KilledPaused = false;
-		m_KilledPauseTimer = 0.0f;
 	}
 	else if (event.eventType == "PauseUI")
 	{
@@ -206,7 +201,7 @@ void dae::PlayerComponent::UpdateKilledPause(float deltaTime)
         {
             m_KilledPaused = false;
             m_KilledPauseTimer = 0.0f;
-            GetOwner()->TriggerEvent("ResumeKilled");
+            GetOwner()->TriggerEvent("PlayerKilled");
         }
     }
 }

@@ -71,7 +71,7 @@ void dae::BulletComponent::CheckCollisions()
             const auto targetPlayer{gameObject->GetComponent<dae::PlayerComponent>()};
 
             if (targetHitbox && targetPlayer &&
-                targetPlayer->GetTag() != GameObjectTag::Player)
+                targetPlayer->GetTag() != GameObjectTag::Player && !targetPlayer->IsDead())
             {
                 if (ourHitbox->IsOverlapping(targetHitbox))
                 {
@@ -91,7 +91,7 @@ void dae::BulletComponent::CheckCollisions()
             const auto targetPlayer{ gameObject->GetComponent<dae::PlayerComponent>() };
 
             if (targetHitbox && targetPlayer &&
-                targetPlayer->GetTag() == GameObjectTag::Player)
+                targetPlayer->GetTag() == GameObjectTag::Player && !targetPlayer->IsDead())
             {
                 if (ourHitbox->IsOverlapping(targetHitbox))
                 {

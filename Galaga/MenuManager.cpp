@@ -6,7 +6,6 @@
 extern void loadSinglePlayer();
 extern void loadTwoPlayer();
 extern void loadPvP();
-extern void loadMainMenu();
 extern void loadHighScores();
 
 MenuManager::MenuManager(dae::GameObject* owner) : Component(owner)
@@ -78,7 +77,6 @@ void MenuManager::LoadScene(GameScene scene)
         loadSinglePlayer();
         sceneManager.SetActiveScene("SinglePlayer");
         break;
-
     case GameScene::TwoPlayer:
         loadTwoPlayer();
         sceneManager.SetActiveScene("TwoPlayer");
