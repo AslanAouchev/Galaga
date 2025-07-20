@@ -20,14 +20,30 @@ void dae::SceneManager::Render()
 
 dae::Scene& dae::SceneManager::CreateScene(const std::string& name)
 {
+	for (auto& scene : m_scenes)
+	{
+		if (scene && scene->GetName() == name)
+		{
+			if (m_activeScene == scene.get())
+			{
+				m_activeScene = nullptr;
+			}
+
+			auto it = std::find(m_scenes.begin(), m_scenes.end(), scene);
+			if (it != m_scenes.end())
+			{
+				m_scenes.erase(it);
+			}
+			break;
+		}
+	}
+
 	const auto& scene = std::shared_ptr<Scene>(new Scene(name));
 	m_scenes.push_back(scene);
-
 	if (!m_activeScene)
 	{
 		m_activeScene = scene.get();
 	}
-
 	return *scene;
 }
 

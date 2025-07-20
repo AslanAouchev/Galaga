@@ -12,6 +12,8 @@ BaseAIController::~BaseAIController() = default;
 
 void BaseAIController::Update(float deltaTime)
 {
+    if (m_Paused) return;
+
     m_TargetUpdateTimer += deltaTime;
     if (m_TargetUpdateTimer >= m_TargetUpdateInterval)
     {
@@ -165,15 +167,6 @@ void BaseAIController::OnNotify(const EventData& event)
 	{
 		m_Paused = false;
 	}
-    else if (event.eventType == "Reset")
-    {
-        m_Paused = false;
-        m_TargetPlayer = nullptr;
-        m_Players.clear();
-        SetState(EnemyState::CreateFormationState());
-        m_FormationPosition = { 0, 0, 0 };
-        m_TargetUpdateTimer = 0.f;
-    }
 }
 
 dae::GameObject* BaseAIController::GetClosestPlayerInRange(float range) const

@@ -131,14 +131,6 @@ void dae::PlayerComponent::OnNotify(const EventData& event)
     {
         m_Paused = false;
     }
-    else if (event.eventType == "Reset")
-    {
-        m_Health = m_MaxHealth;
-        m_IsDead = false;
-        m_Paused = false;
-        m_FireCooldown = 0.0f;
-        GetOwner()->SetActive(false);
-    }
 }
 
 void dae::PlayerComponent::CheckCollisions()

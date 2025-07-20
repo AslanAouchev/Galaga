@@ -150,19 +150,17 @@ void GalagaGameManager::HandleEnemyKilled(const EventData& )
     ++m_EnemiesKilled;
     //const int points{ event.value > 0 ? event.value : 100 };
     //AddScore(points);
+    std::cout << "Enemy killed, total enemies killed: " << m_EnemiesKilled << std::endl;
 
     CheckLevelComplete();
 }
 
 void GalagaGameManager::CheckLevelComplete()
 {
-    if (m_EnemiesKilled >= m_TotalEnemies)
+    if (m_EnemiesKilled >= 10)
     {
-        
         AddScore(1000);
 
-        std::cout << "Enemy killed, total enemies killed: " << m_EnemiesKilled << std::endl;
-        std::cout << "Total enemies: " << m_Score << std::endl;
         EndGame();
     }
 }

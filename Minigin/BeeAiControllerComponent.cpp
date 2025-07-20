@@ -31,8 +31,6 @@ BeeAiControllerComponent::~BeeAiControllerComponent()
 
 void BeeAiControllerComponent::Update(const float deltaTime)
 {
-    if (m_Paused) return;
-
 	BaseAIController::Update(deltaTime);
 
     if(m_ExistenceTimer < 1.0f)

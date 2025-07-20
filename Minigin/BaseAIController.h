@@ -45,9 +45,6 @@ public:
     virtual bool OnShouldDive() = 0;
     virtual void Shoot() = 0;
 
-protected:
-    bool m_Paused{ false };
-
 private:
     std::unique_ptr<EnemyState> m_CurrentState{nullptr};
     dae::GameObject* m_Owner{nullptr};
@@ -58,4 +55,5 @@ private:
     float m_DiveCooldown{ 5.0f };
     float m_TargetUpdateTimer{};
     float m_TargetUpdateInterval{ 1.f };
+    bool m_Paused{ false };
 };

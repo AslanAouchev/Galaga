@@ -155,6 +155,7 @@ void loadSinglePlayer()
 		go->SetParent(fo.get(), true);
 
 		fo->AddObserver(go.get()->GetComponent<BeeAiControllerComponent>());
+		go->AddObserver(fo.get()->GetComponent<Observer>());
 
 		scene.Add(std::move(go));
 	}
