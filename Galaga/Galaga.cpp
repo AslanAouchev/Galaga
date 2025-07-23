@@ -28,7 +28,10 @@
 
 void loadMainMenu()
 {
+	ServiceLocator::getSoundSystem().stopAllSounds();
+
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("MainMenu");
+	dae::SceneManager::GetInstance().SetActiveScene("MainMenu");
 	auto& input = dae::InputManager::GetInstance();
 
 	input.ClearBindings();
@@ -77,17 +80,41 @@ void loadMainMenu()
 	input.BindCommand(SDL_SCANCODE_W, std::make_unique<UpUiCommand>(menuManager.get()));
 	input.BindCommand(SDL_SCANCODE_S, std::make_unique<DownUiCommand>(menuManager.get()));
 	input.BindCommand(SDL_SCANCODE_RETURN, std::make_unique<ConfirmUiCommand>(menuManager.get()));
+	input.BindCommand(SDL_SCANCODE_F2, std::make_unique<MuteCommand>(menuManager.get()));
 	input.BindCommand(SDL_SCANCODE_KP_ENTER, std::make_unique<ConfirmUiCommand>(menuManager.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(menuManager.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(menuManager.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_START, std::make_unique<ConfirmUiCommand>(menuManager.get()));
 
 	scene.Add(std::move(menuManager));
+
+	auto& soundSystem = ServiceLocator::getSoundSystem();
+
+	soundSystem.registerSound(0, "../Data/Bonus_Stage.wav");
+	soundSystem.registerSound(1, "../Data/Bonus_Stage_Perfect.wav");
+	soundSystem.registerSound(2, "../Data/Bonus_Stage_Result.wav");
+	soundSystem.registerSound(3, "../Data/Captured_Fighter_Destroyed.wav");
+	soundSystem.registerSound(4, "../Data/Coin_Insert.wav");
+	soundSystem.registerSound(5, "../Data/Enemy_Hit.wav");
+	soundSystem.registerSound(6, "../Data/High_Score.wav");
+	soundSystem.registerSound(7, "../Data/High_Score_5thplace.wav");
+	soundSystem.registerSound(8, "../Data/Last_Ship_Destroyed.wav");
+	soundSystem.registerSound(9, "../Data/Level_Flag.wav");
+	soundSystem.registerSound(10, "../Data/Life_Up.wav");
+	soundSystem.registerSound(11, "../Data/Opening_Theme.wav");
+	soundSystem.registerSound(12, "../Data/Ship_Captured_Rescued.wav");
+	soundSystem.registerSound(13, "../Data/Shoot.wav");
+	soundSystem.registerSound(14, "../Data/Tractor_Beam.wav");
+
+	ServiceLocator::getSoundSystem().play(11, 0.8f);
 }
 
 void loadSinglePlayer()
 {
+	ServiceLocator::getSoundSystem().stopAllSounds();
+
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("SinglePlayer");
+	dae::SceneManager::GetInstance().SetActiveScene("SinglePlayer");
 
 	auto& input = dae::InputManager::GetInstance();
 
@@ -140,6 +167,7 @@ void loadSinglePlayer()
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(fo.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(fo.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_START, std::make_unique<ConfirmUiCommand>(fo.get()));
+	input.BindCommand(SDL_SCANCODE_F2, std::make_unique<MuteCommand>(fo.get()));
 
 	go->AddObserver(fo.get()->GetComponent<Observer>());
 	fo->AddObserver(go.get()->GetComponent<Observer>());
@@ -176,30 +204,17 @@ void loadSinglePlayer()
 		scene.Add(std::move(pauseMenuItem));
 	}
 
+	fo->GetComponent<GalagaGameManager>()->CountEnemiesInScene();
+
 	scene.Add(std::move(fo));
-
-	auto& soundSystem = ServiceLocator::getSoundSystem();
-
-	soundSystem.registerSound(0, "../Data/Bonus_Stage.wav");
-	soundSystem.registerSound(1, "../Data/Bonus_Stage_Perfect.wav");
-	soundSystem.registerSound(2, "../Data/Bonus_Stage_Result.wav");
-	soundSystem.registerSound(3, "../Data/Captured_Fighter_Destroyed.wav");
-	soundSystem.registerSound(4, "../Data/Coin_Insert.wav");
-	soundSystem.registerSound(5, "../Data/Enemy_Hit.wav");
-	soundSystem.registerSound(6, "../Data/High_Score.wav");
-	soundSystem.registerSound(7, "../Data/High_Score_5thplace.wav");
-	soundSystem.registerSound(8, "../Data/Last_Ship_Destroyed.wav");
-	soundSystem.registerSound(9, "../Data/Level_Flag.wav");
-	soundSystem.registerSound(10, "../Data/Life_Up.wav");
-	soundSystem.registerSound(11, "../Data/Opening_Theme.wav");
-	soundSystem.registerSound(12, "../Data/Ship_Captured_Rescued.wav");
-	soundSystem.registerSound(13, "../Data/Shoot.wav");
-	soundSystem.registerSound(14, "../Data/Tractor_Beam.wav");
 }
 
 void loadTwoPlayer()
 {
+	ServiceLocator::getSoundSystem().stopAllSounds();
+
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("TwoPlayer");
+	dae::SceneManager::GetInstance().SetActiveScene("TwoPlayer");
 	scene.RemoveAll();
 
 	auto& input = dae::InputManager::GetInstance();
@@ -209,6 +224,8 @@ void loadTwoPlayer()
 
 void loadPvP()
 {
+	ServiceLocator::getSoundSystem().stopAllSounds();
+
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("PvP");
 	scene.RemoveAll();
 
@@ -219,7 +236,11 @@ void loadPvP()
 
 void loadHighScores()
 {
+	ServiceLocator::getSoundSystem().stopAllSounds();
+
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("HighScores");
+	dae::SceneManager::GetInstance().SetActiveScene("HighScores");
+
 	auto& input = dae::InputManager::GetInstance();
 	input.ClearBindings();
 
@@ -284,8 +305,11 @@ void loadHighScores()
 
 	auto inputHandler = std::make_unique<dae::GameObject>();
 	input.BindCommand(SDL_SCANCODE_ESCAPE, std::make_unique<ReturnToMenuCommand>(inputHandler.get()));
+	input.BindCommand(SDL_SCANCODE_F2, std::make_unique<MuteCommand>(inputHandler.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_B, std::make_unique<ReturnToMenuCommand>(inputHandler.get()));
 	scene.Add(std::move(inputHandler));
+
+	ServiceLocator::getSoundSystem().play(6, 0.8f);
 }
 
 int main(int, char* [])

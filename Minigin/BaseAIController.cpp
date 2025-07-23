@@ -159,7 +159,7 @@ void BaseAIController::OnNotify(const EventData& event)
     {
         SetState(m_CurrentState->CreateFormationState());
     }
-    else if (event.eventType == "PauseUI")
+    else if (event.eventType == "PauseUI" || event.eventType == "GameOver")
     {
         m_Paused = true;
     }

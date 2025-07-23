@@ -24,8 +24,16 @@ public:
     virtual void play(sound_id id, float volume) = 0;
     virtual void initialize() = 0;
     virtual void stopAllSounds() = 0;
+    virtual void mute() = 0;
     virtual void shutdown() = 0;
     virtual void registerSound(sound_id id, const std::string& filepath) = 0;
+
+protected:
+	bool IsMuted() const { return m_IsMuted; }
+	void SetMuted(bool muted){m_IsMuted = muted;}
+
+private:
+    bool m_IsMuted{ false };
 };
 
 class SoundEventQueue 
@@ -88,6 +96,7 @@ public:
     void initialize() override;
     void shutdown() override;
     void stopAllSounds() override;
+    void mute() override;
     void registerSound(sound_id id, const std::string& filepath) override;
 };
 
@@ -126,6 +135,12 @@ public:
         realSoundSystem->stopAllSounds();
     }
 
+	void mute() override
+	{
+		std::cout << "muting sound system" << std::endl;
+		realSoundSystem->mute();
+	}
+
     void registerSound(sound_id id, const std::string& filepath) override {
         std::cout << "registering sound " << id << ": " << filepath << std::endl;
         realSoundSystem->registerSound(id, filepath);
@@ -150,6 +165,10 @@ public:
     void stopAllSounds() override
     {
     }
+
+	void mute() override
+	{
+	}
 
     void registerSound(sound_id, const std::string&) override 
     {

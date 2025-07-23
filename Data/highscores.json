@@ -1,24 +1,24 @@
 {
   "highscores": [
     {
-      "name": "AAA",
-      "score": 1000
+      "name": "AZA",
+      "score": 1750
+    },
+    {
+      "name": "UAA",
+      "score": 1500
+    },
+    {
+      "name": "ZSA",
+      "score": 1500
+    },
+    {
+      "name": "ASS",
+      "score": 1500
     },
     {
       "name": "AAA",
-      "score": 1000
-    },
-    {
-      "name": "AAA",
-      "score": 1000
-    },
-    {
-      "name": "AAA",
-      "score": 1000
-    },
-    {
-      "name": "AAA",
-      "score": 1000
+      "score": 100
     }
   ]
 }

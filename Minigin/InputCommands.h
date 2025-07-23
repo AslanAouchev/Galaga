@@ -8,6 +8,10 @@ extern void loadMainMenu();
 
 class MoveLeftCommand : public GameObjectCommand
 {
+private:
+    float m_EventCooldown{ 0.0f };
+    const float m_EventInterval{ 0.2f };
+
 public:
     MoveLeftCommand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
 
@@ -22,6 +26,7 @@ public:
                     const auto transform{ GetGameObject()->GetTransform() };
                     const auto pos{ transform.GetPosition() };
                     GetGameObject()->SetPosition(pos.x - 200.f, pos.y);
+                    GetGameObject()->TriggerEvent("NameLeft");
                 }
             }
         }
@@ -39,6 +44,15 @@ public:
                     const auto pos{ transform.GetPosition() };
                     GetGameObject()->SetPosition(pos.x - 200.f * deltaTime, pos.y);
                 }
+                else
+                {
+                    m_EventCooldown -= deltaTime;
+                    if (m_EventCooldown <= 0.0f)
+                    {
+                        GetGameObject()->TriggerEvent("NameLeft");
+                        m_EventCooldown = m_EventInterval;
+                    }
+                }
             }
         }
     }
@@ -46,6 +60,10 @@ public:
 
 class MoveRightCommand : public GameObjectCommand
 {
+private:
+    float m_EventCooldown{ 0.0f };
+    const float m_EventInterval{ 0.2f };
+
 public:
     MoveRightCommand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
 
@@ -60,6 +78,7 @@ public:
                     const auto transform{ GetGameObject()->GetTransform() };
                     const auto pos{ transform.GetPosition() };
                     GetGameObject()->SetPosition(pos.x + 200.f, pos.y);
+                    GetGameObject()->TriggerEvent("NameRight");
                 }
             }
         }
@@ -76,6 +95,15 @@ public:
                     const auto transform{ GetGameObject()->GetTransform() };
                     const auto pos{ transform.GetPosition() };
                     GetGameObject()->SetPosition(pos.x + 200.f * deltaTime, pos.y);
+                }
+                else
+                {
+                    m_EventCooldown -= deltaTime;
+                    if (m_EventCooldown <= 0.0f)
+                    {
+                        GetGameObject()->TriggerEvent("NameRight");
+                        m_EventCooldown = m_EventInterval;
+                    }
                 }
             }
         }
@@ -202,6 +230,26 @@ public:
 			auto& sceneManager = dae::SceneManager::GetInstance();
             sceneManager.SetActiveScene("MainMenu");
         }
+    }
+
+    virtual void Execute(float) override
+    {
+
+    }
+};
+
+class MuteCommand : public GameObjectCommand
+{
+public:
+
+    MuteCommand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
+
+    virtual void Execute() override
+    {
+		if (GetGameObject())
+		{
+			ServiceLocator::getSoundSystem().mute();
+		}
     }
 
     virtual void Execute(float) override

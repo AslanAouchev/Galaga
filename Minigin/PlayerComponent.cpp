@@ -59,27 +59,12 @@ void dae::PlayerComponent::TakeDamage(int amount)
 
     if (m_Health <= 0)
     {
-        if (m_Tag == GameObjectTag::Bee)
-        {
-            GetOwner()->TriggerEvent("EnemyKilled");
-        }
-		else if (m_Tag == GameObjectTag::Butterfly)
-		{
-			GetOwner()->TriggerEvent("EnemyKilled");
-		}
-		else if (m_Tag == GameObjectTag::Boss)
-		{
-			GetOwner()->TriggerEvent("EnemyKilled");
-		}
-		else if (m_Tag == GameObjectTag::EnemyPlayer)
-		{
-			GetOwner()->TriggerEvent("EnemyKilled");
-		}
         m_IsDead = true;
     
         if (m_Tag != GameObjectTag::Player)
         {
             GetOwner()->SetActive(false);
+            GetOwner()->TriggerEvent("EnemyKilled", m_ScoreValue);
             return;
         }
     }
@@ -94,6 +79,11 @@ bool dae::PlayerComponent::Fire()
 
     if (m_FireCooldown <= 0.0f)
     {
+        if (m_Tag == GameObjectTag::Player)
+        {
+            GetOwner()->TriggerEvent("Shot");
+        }
+
         auto bullet{ std::make_unique<dae::GameObject>() };
 
         const auto playerPos{ GetOwner()->GetTransform().GetPosition() };
@@ -123,7 +113,7 @@ void dae::PlayerComponent::OnNotify(const EventData& event)
         m_KilledPaused = true;
         m_KilledPauseTimer = 5.f;
 	}
-	else if (event.eventType == "PauseUI")
+	else if (event.eventType == "PauseUI" || event.eventType == "GameOver")
 	{
 		m_Paused = true;
 	}

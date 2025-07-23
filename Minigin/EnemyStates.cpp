@@ -1,6 +1,8 @@
 #include "EnemyStates.h"
 #include "BaseAIController.h"
 #include <iostream>
+#include <PlayerComponent.h>
+#include <BeeAiControllerComponent.h>
 
 std::unique_ptr<EnemyState> EnemyState::CreateFormationState()
 {
@@ -63,9 +65,17 @@ std::unique_ptr<EnemyState> InFormationState::Update(BaseAIController* controlle
     return nullptr;
 }
 
-void InFormationState::Enter(BaseAIController*)
+void InFormationState::Enter(BaseAIController* controller)
 {
-    std::cout << "in formation\n";
+    auto playerComp = controller->GetOwnerAI()->GetComponent<dae::PlayerComponent>();
+
+    if (controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
+    {
+        if (playerComp)
+        {
+            playerComp->SetScore(100);
+        }
+    }
     m_DiveTimer = 0.0f;
 }
 
@@ -110,9 +120,18 @@ std::unique_ptr<EnemyState> DivingState::Update(BaseAIController* controller, fl
     return nullptr;
 }
 
-void DivingState::Enter(BaseAIController*)
+void DivingState::Enter(BaseAIController* controller)
 {
-    std::cout << "starting dive attack\n";
+    auto playerComp = controller->GetOwnerAI()->GetComponent<dae::PlayerComponent>();
+
+    if(controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
+    {
+        if (playerComp)
+        {
+            playerComp->SetScore(50);
+        }
+    }
+
     m_DivePath.clear();
     m_CurrentPathPoint = 0;
     m_PathGenerated = false;

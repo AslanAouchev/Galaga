@@ -165,6 +165,7 @@
     <ClCompile Include="GalagaGameManager.cpp" />
     <ClCompile Include="MenuItemComponent.cpp" />
     <ClCompile Include="MenuManager.cpp" />
+    <ClCompile Include="NameInputComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Minigin\BaseAIController.h" />
@@ -176,6 +177,7 @@
     <ClInclude Include="GalagaGameManager.h" />
     <ClInclude Include="MenuItemComponent.h" />
     <ClInclude Include="MenuManager.h" />
+    <ClInclude Include="NameInputComponent.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

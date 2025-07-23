@@ -1,3 +1,4 @@
+#include "SDLSoundSystem.h"
 #include <SDL_mixer.h>
 #include <unordered_map>
 #include <iostream>
@@ -116,9 +117,19 @@ void SDLSoundSystem::stopAllSounds()
     pImpl->stopAllSounds();
 }
 
+void SDLSoundSystem::mute()
+{
+    SetMuted(!IsMuted());
+
+    if (IsMuted())
+    {
+        pImpl->stopAllSounds();
+    }
+}
+
 void SDLSoundSystem::play(sound_id id, float volume) 
 {
-    if (running) 
+    if (running && !IsMuted())
     {
         eventQueue.push(SoundEvent(id, volume));
     }

@@ -4,6 +4,7 @@
 #include "Scene.h"
 #include "SceneManager.h"
 #include <PlayerComponent.h>
+#include <EnemyStates.h>
 
 BeeAiControllerComponent::BeeAiControllerComponent(dae::GameObject* owner)
 	: Component(owner), BaseAIController(owner)

@@ -75,7 +75,6 @@ void MenuManager::LoadScene(GameScene scene)
     {
     case GameScene::SinglePlayer:
         loadSinglePlayer();
-        sceneManager.SetActiveScene("SinglePlayer");
         break;
     case GameScene::TwoPlayer:
         loadTwoPlayer();

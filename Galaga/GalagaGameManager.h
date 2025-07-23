@@ -22,17 +22,19 @@ public:
 	virtual void Update(float ) override {}
 	virtual void Render() const override {}
 
-    void OnNameInputComplete(const std::string& name);
+    void CountEnemiesInScene();
 
 private:
     int m_PauseMenuSelection{ 0 };
 
     int m_Score{ 0 };
     int m_Lives{ 3 };
-    bool m_IsGameOver{ false };
     bool m_IsPaused{ false };
     int m_EnemiesKilled{ 0 };
     int m_TotalEnemies{ 0 };
+    int m_ShotAmount{0};
+
+    bool m_EnteringName{ false };
 
     void HandlePlayerKilled(const EventData& event);
     void HandleEnemyKilled(const EventData& event);
@@ -45,7 +47,6 @@ private:
 
     void PauseGame();
     void EndGame();
-    void ResetGame();
 
     void AddScore(int points);
     void SetLives(int lives) { m_Lives = lives; }

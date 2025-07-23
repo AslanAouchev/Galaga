@@ -16,6 +16,7 @@ public:
 
     void Update(float deltaTime);
     void SetState(std::unique_ptr<EnemyState> newState);
+	EnemyState* GetCurrentState() const { return m_CurrentState.get(); }
 
 	dae::GameObject* GetOwnerAI() const { return m_Owner; }
     const std::vector<dae::GameObject*>& GetPlayers() const { return m_Players; }

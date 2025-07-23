@@ -42,7 +42,7 @@ dae::Scene& dae::SceneManager::CreateScene(const std::string& name)
 	m_scenes.push_back(scene);
 	if (!m_activeScene)
 	{
-		m_activeScene = scene.get();
+		SetActiveScene(name);
 	}
 	return *scene;
 }

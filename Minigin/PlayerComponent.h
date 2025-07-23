@@ -64,7 +64,7 @@ namespace dae
 
 		std::string m_BulletString{""};
 		float m_FireCooldown{ 0.0f };
-		const float m_MaxFireCooldown{ 0.2f };
+		const float m_MaxFireCooldown{ 0.5f };
 		const float m_BulletSpeed{ 400.0f };
 		int m_ScoreValue{ 0 };
 		bool m_Paused{ false };

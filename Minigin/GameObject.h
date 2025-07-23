@@ -22,9 +22,10 @@ namespace dae
 		GameObject& operator=(GameObject&& other) = delete;
 
 		template <typename T, typename... Args>
-		void AddComponent(Args&&... args)
+		T* AddComponent(Args&&... args)
 		{
 			m_Components.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+			return dynamic_cast<T*>(m_Components.back().get());
 		}
 
 		void RemoveComponent(Component* components);
@@ -94,9 +95,9 @@ namespace dae
 			}
 		}
 
-		void TriggerEvent(const std::string& eventType)
+		void TriggerEvent(const std::string& eventType, int value = 0)
 		{
-			EventData event(eventType, this);
+			EventData event(eventType, this, value);
 			NotifyObservers(event);
 		}
 
