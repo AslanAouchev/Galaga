@@ -1,8 +1,6 @@
 #include "HighScoreManager.h"
 #include "json.hpp"
 #include <fstream>
-#include <algorithm>
-#include <iostream>
 
 using json = nlohmann::json;
 
@@ -18,80 +16,59 @@ std::vector<HighScore> HighScoreManager::LoadHighScores()
 
     if (!file.is_open())
     {
-        std::cout << "High score file not found" << std::endl;
         return scores;
     }
 
-    try
+    json jsonData;
+    file >> jsonData;
+    file.close();
+
+    if (jsonData.contains("highscores") && jsonData["highscores"].is_array())
     {
-        json jsonData;
-        file >> jsonData;
-        file.close();
-
-        if (jsonData.contains("highscores") && jsonData["highscores"].is_array())
+        for (const auto& scoreEntry : jsonData["highscores"])
         {
-            for (const auto& scoreEntry : jsonData["highscores"])
+            if (scoreEntry.contains("name") && scoreEntry.contains("score"))
             {
-                if (scoreEntry.contains("name") && scoreEntry.contains("score"))
-                {
-                    std::string name = scoreEntry["name"];
-                    int score = scoreEntry["score"];
+                std::string name = scoreEntry["name"];
+                int score = scoreEntry["score"];
 
-                    if (!name.empty() && score > 0)
-                    {
-                        scores.emplace_back(name, score);
-                    }
+                if (!name.empty() && score > 0)
+                {
+                    scores.emplace_back(name, score);
                 }
             }
         }
-
-        std::sort(scores.begin(), scores.end(),
-            [](const HighScore& a, const HighScore& b) {
-                return a.score > b.score;
-            });
-
-        if (scores.size() > MAX_HIGH_SCORES)
-            scores.resize(MAX_HIGH_SCORES);
     }
-    catch (const std::exception& e)
-    {
-        std::cout << "Error loading high scores " << e.what() << std::endl;
-        scores.clear();
-    }
+
+    std::sort(scores.begin(), scores.end(),
+        [](const HighScore& a, const HighScore& b) {
+            return a.score > b.score;
+        });
+
+    if (scores.size() > MAX_HIGH_SCORES)
+        scores.resize(MAX_HIGH_SCORES);
 
     return scores;
 }
 
 void HighScoreManager::SaveHighScores(const std::vector<HighScore>& scores)
 {
-    try
+    json jsonData;
+    jsonData["highscores"] = json::array();
+
+    for (const auto& score : scores)
     {
-        json jsonData;
-        jsonData["highscores"] = json::array();
-
-        for (const auto& score : scores)
-        {
-            json scoreEntry;
-            scoreEntry["name"] = score.playerName;
-            scoreEntry["score"] = score.score;
-            jsonData["highscores"].push_back(scoreEntry);
-        }
-
-        std::ofstream file(GetHighScoreFilePath());
-        if (file.is_open())
-        {
-            file << jsonData.dump(2);
-            file.close();
-            std::cout << "High scores saved successfully" << std::endl;
-        }
-        else
-        {
-            std::cout << "Could not open high scores file" << std::endl;
-        }
+        json scoreEntry;
+        scoreEntry["name"] = score.playerName;
+        scoreEntry["score"] = score.score;
+        jsonData["highscores"].push_back(scoreEntry);
     }
-    catch (const std::exception& e)
+
+    std::ofstream file(GetHighScoreFilePath());
+    if (file.is_open())
     {
-        std::cout << "Error saving high scores " << e.what() << std::endl;
+        file << jsonData.dump(2);
+        file.close();
     }
 }
 

@@ -1,6 +1,10 @@
 {
   "highscores": [
     {
+      "name": "AAZ",
+      "score": 1850
+    },
+    {
       "name": "AZA",
       "score": 1750
     },
@@ -15,10 +19,6 @@
     {
       "name": "ASS",
       "score": 1500
-    },
-    {
-      "name": "AAA",
-      "score": 100
     }
   ]
 }

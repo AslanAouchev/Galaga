@@ -163,6 +163,7 @@
     <ClCompile Include="BulletComponent.cpp" />
     <ClCompile Include="Galaga.cpp" />
     <ClCompile Include="GalagaGameManager.cpp" />
+    <ClCompile Include="LifeIconComponent.cpp" />
     <ClCompile Include="MenuItemComponent.cpp" />
     <ClCompile Include="MenuManager.cpp" />
     <ClCompile Include="NameInputComponent.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="..\Minigin\PlayerComponent.h" />
     <ClInclude Include="BulletComponent.h" />
     <ClInclude Include="GalagaGameManager.h" />
+    <ClInclude Include="LifeIconComponent.h" />
     <ClInclude Include="MenuItemComponent.h" />
     <ClInclude Include="MenuManager.h" />
     <ClInclude Include="NameInputComponent.h" />

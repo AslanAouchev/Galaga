@@ -74,6 +74,11 @@ namespace dae
 			}
 		}
 
+		int GetObserverCount() const
+		{
+			return static_cast<int>(m_Observers.size());
+		}
+
 		void RemoveObserver(Observer* observer)
 		{
 			auto it{ std::find(m_Observers.begin(), m_Observers.end(), observer) };
