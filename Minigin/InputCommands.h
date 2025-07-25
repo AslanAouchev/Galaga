@@ -257,3 +257,20 @@ public:
 
     }
 };
+
+class SkipLevelCommand : public GameObjectCommand
+{
+public:
+
+    SkipLevelCommand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
+
+    virtual void Execute() override
+    {
+        GetGameObject()->TriggerEvent("SkipLevel");
+    }
+
+    virtual void Execute(float) override
+    {
+
+    }
+};

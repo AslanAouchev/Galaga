@@ -106,6 +106,7 @@ void GalagaGameManager::OnNotify(const EventData& event)
     {
         GetOwner()->TriggerEvent("NameRightComponent");
     }
+
 }
 
 void GalagaGameManager::UpdatePauseMenuSelection()

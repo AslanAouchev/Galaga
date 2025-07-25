@@ -15,10 +15,10 @@ namespace dae
 		void Update(float deltaTime);
 
 		void BindCommand(SDL_Scancode key, std::unique_ptr<Command> command);
-		void BindCommand(Uint8 controllerButton, std::unique_ptr<Command> command);
+		void BindCommand(Uint8 controllerButton, std::unique_ptr<Command> command, int controllerIndex);
 
 		void BindContinuousCommand(SDL_Scancode key, std::unique_ptr<Command> command);
-		void BindContinuousCommand(Uint8 controllerButton, std::unique_ptr<Command> command);
+		void BindContinuousCommand(Uint8 controllerButton, std::unique_ptr<Command> command, int controllerIndex);
 
 		void ClearBindings();
 
