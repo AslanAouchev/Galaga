@@ -1,4 +1,5 @@
 #include "SceneManager.h"
+#include "SceneManager.h"
 #include "Scene.h"
 #include <stdexcept>
 
@@ -84,4 +85,16 @@ void dae::SceneManager::SetActiveScene(const std::string& name)
 			return;
 		}
 	}
+}
+
+void dae::SceneManager::RemoveAllScenes()
+{
+	for (auto& scene : m_scenes)
+	{
+		if (scene)
+		{
+			scene->RemoveAll();
+		}
+	}
+	m_activeScene = nullptr;
 }

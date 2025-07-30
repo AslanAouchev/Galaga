@@ -5,6 +5,8 @@
 
 dae::GameObject::~GameObject()
 {	
+	m_Observers.clear();
+
 	if (m_Parent)
 	{
 		m_Parent->RemoveChild(this);
@@ -18,32 +20,33 @@ dae::GameObject::~GameObject()
 		}
 	}
 	m_Children.clear();
-	m_Observers.clear();
 }
 void dae::GameObject::Update(const float deltaTime)
 {
-	if (!m_IsActive) return;
-
-	for (auto& components : m_Components)
+	if(m_IsActive)
 	{
-		if(components)
+		for (auto& components : m_Components)
 		{
-			components->Update(deltaTime);
+			if (components)
+			{
+				components->Update(deltaTime);
+			}
 		}
-	}
 
-	UpdateWorldPosition();
+		UpdateWorldPosition();
+	}
 }
 
 void dae::GameObject::Render() const
 {
-	if (!m_IsActive) return;
-
-	for (const auto& components : m_Components)
+	if(m_IsActive)
 	{
-		if(components)
+		for (const auto& components : m_Components)
 		{
-			components->Render();
+			if (components)
+			{
+				components->Render();
+			}
 		}
 	}
 }

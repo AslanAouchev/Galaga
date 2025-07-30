@@ -36,6 +36,11 @@ public:
     void SetSpeed(float speed) { m_Speed = speed; }
     void SetDiveCooldown(float cooldown) { m_DiveCooldown = cooldown; }
 
+    void SetAttack(bool SetAttack)
+    {
+        m_CanAttack = SetAttack;
+    }
+
     void UpdateTargetPlayer();
     float GetDistanceToPlayer(dae::GameObject* player) const;
     void OnNotify(const EventData& event) override;
@@ -43,8 +48,9 @@ public:
 
     virtual void OnUpdateFormationBehavior(float) = 0;
     virtual void OnGenerateDivePath(std::vector<glm::vec3>&) = 0;
-    virtual bool OnShouldDive() = 0;
     virtual void Shoot() = 0;
+
+    bool OnShouldDive();
 
 private:
     std::unique_ptr<EnemyState> m_CurrentState{nullptr};
@@ -57,4 +63,5 @@ private:
     float m_TargetUpdateTimer{};
     float m_TargetUpdateInterval{ 1.f };
     bool m_Paused{ false };
+    bool m_CanAttack{};
 };

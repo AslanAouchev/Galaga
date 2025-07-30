@@ -20,9 +20,7 @@ public:
     GalagaGameManager& operator=(GalagaGameManager&& other) = delete;
 
     virtual void Update(float deltaTime) override;
-	virtual void Render() const override {}
-
-    void CountEnemiesInScene();
+    virtual void Render() const override;
 
 private:
 
@@ -33,12 +31,26 @@ private:
     bool m_EnteringName{ false };
     int m_EnemiesKilled{ 0 };
     int m_TotalEnemies{ 0 };
-    int m_ShotAmount{0};
+    int m_ShotAmount{ 0 };
     int m_PlayerCount{ 0 };
+    int m_DoOnce{};
 
     bool m_ShowingGameOver{ false };
     float m_GameOverTimer{ 0.0f };
     const float m_GameOverDuration{ 2.0f };
+
+    int m_CurrentLevel{ 1 };
+    bool m_LevelStarted{ false };
+    bool m_AllEnemiesSpawned{ false };
+
+    float m_EnemySpawnTimer{  };
+    float m_EnemySpawnDelay{ 1.0f };
+    int m_EnemiesSpawned{};
+
+    float m_EnemyAttackTimer{};
+    float m_EnemyAttackInterval{3.0f};
+
+    std::unique_ptr<dae::GameObject> m_LevelText;
 
     void HandlePlayerKilled(const EventData& event);
     void HandleEnemyKilled(const EventData& event);
@@ -58,4 +70,16 @@ private:
     void UpdatePauseMenuSelection();
 
     void CreateLifeDisplay();
+    void UpdatePlayerCount();
+
+    void UpdateLevelLogic(float deltaTime);
+    void UpdateEnemyAttacks(float deltaTime);
+
+    void StartLevel(int level);
+    void SetupLevelParameters();
+    void SpawnNextEnemy();
+    void TriggerRandomEnemyAttack();
+    void ClearEnemies();
+    void ShowLevelStart();
+    void SkipToNextLevel();
 };

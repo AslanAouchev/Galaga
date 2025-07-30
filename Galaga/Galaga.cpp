@@ -30,6 +30,8 @@ void loadMainMenu()
 {
 	ServiceLocator::getSoundSystem().stopAllSounds();
 
+	dae::SceneManager::GetInstance().RemoveAllScenes();
+
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("MainMenu");
 	dae::SceneManager::GetInstance().SetActiveScene("MainMenu");
 	auto& input = dae::InputManager::GetInstance();
@@ -113,6 +115,8 @@ void loadSinglePlayer()
 {
 	ServiceLocator::getSoundSystem().stopAllSounds();
 
+	dae::SceneManager::GetInstance().RemoveAllScenes();
+
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("SinglePlayer");
 	dae::SceneManager::GetInstance().SetActiveScene("SinglePlayer");
 
@@ -192,14 +196,14 @@ void loadSinglePlayer()
 		scene.Add(std::move(pauseMenuItem));
 	}
 
-	fo->GetComponent<GalagaGameManager>()->CountEnemiesInScene();
-
 	scene.Add(std::move(fo));
 }
 
 void loadTwoPlayer()
 {
 	ServiceLocator::getSoundSystem().stopAllSounds();
+
+	dae::SceneManager::GetInstance().RemoveAllScenes();
 
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("TwoPlayer");
 	dae::SceneManager::GetInstance().SetActiveScene("TwoPlayer");
@@ -233,7 +237,7 @@ void loadTwoPlayer()
 	input.BindContinuousCommand(SDL_SCANCODE_A, std::make_unique<MoveLeftCommand>(go.get()));
 	input.BindContinuousCommand(SDL_SCANCODE_D, std::make_unique<MoveRightCommand>(go.get()));
 	input.BindCommand(SDL_SCANCODE_SPACE, std::make_unique<FireCommand>(go.get()));
-
+	 
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, std::make_unique<MoveLeftCommand>(go.get()), 0);
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, std::make_unique<MoveRightCommand>(go.get()), 0);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<FireCommand>(go.get()), 0);
@@ -293,13 +297,13 @@ void loadTwoPlayer()
 		scene.Add(std::move(pauseMenuItem));
 	}
 
-	fo->GetComponent<GalagaGameManager>()->CountEnemiesInScene();
-
 	scene.Add(std::move(fo));
 }
 void loadPvP()
 {
 	ServiceLocator::getSoundSystem().stopAllSounds();
+
+	dae::SceneManager::GetInstance().RemoveAllScenes();
 
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("PvP");
 	scene.RemoveAll();
@@ -312,6 +316,8 @@ void loadPvP()
 void loadHighScores()
 {
 	ServiceLocator::getSoundSystem().stopAllSounds();
+
+	dae::SceneManager::GetInstance().RemoveAllScenes();
 
 	auto& scene = dae::SceneManager::GetInstance().CreateScene("HighScores");
 	dae::SceneManager::GetInstance().SetActiveScene("HighScores");

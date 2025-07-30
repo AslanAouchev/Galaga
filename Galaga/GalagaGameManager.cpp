@@ -9,6 +9,8 @@
 #include "ResourceManager.h"
 #include "TextComponent.h"
 #include "LifeIconComponent.h"
+#include <BeeAiControllerComponent.h>
+#include <random>
 
 GalagaGameManager::GalagaGameManager(dae::GameObject* pOwner) : dae::Component(pOwner)
 {
@@ -34,7 +36,7 @@ void GalagaGameManager::OnNotify(const EventData& event)
     }
     else if (event.eventType == "Pause")
     {
-        if(!m_EnteringName)
+        if (!m_EnteringName)
         {
             if (!m_IsPaused)
             {
@@ -68,7 +70,7 @@ void GalagaGameManager::OnNotify(const EventData& event)
         }
         else if (m_EnteringName)
         {
-			GetOwner()->TriggerEvent("NameDown");
+            GetOwner()->TriggerEvent("NameDown");
         }
     }
     else if (event.eventType == "MenuConfirm")
@@ -91,7 +93,7 @@ void GalagaGameManager::OnNotify(const EventData& event)
         else if (m_EnteringName)
         {
             m_EnteringName = false;
-			GetOwner()->TriggerEvent("NameInputComplete");
+            GetOwner()->TriggerEvent("NameInputComplete");
         }
     }
     else if (event.eventType == "Shot")
@@ -105,6 +107,10 @@ void GalagaGameManager::OnNotify(const EventData& event)
     else if (event.eventType == "NameRight" && m_EnteringName)
     {
         GetOwner()->TriggerEvent("NameRightComponent");
+    }
+    else if (event.eventType == "SkipLevel")
+    {
+        SkipToNextLevel();
     }
 
 }
@@ -145,7 +151,7 @@ void GalagaGameManager::EndGameWin()
 
         GetOwner()->AddObserver(GetOwner()->GetComponent<NameInputComponent>());
 
-		GetOwner()->TriggerEvent("EndGame");
+        GetOwner()->TriggerEvent("EndGame");
 
         m_EnteringName = true;
     }
@@ -182,7 +188,7 @@ void GalagaGameManager::AddScore(int points)
     m_Score += points;
 }
 
-void GalagaGameManager::HandlePlayerKilled(const EventData& )
+void GalagaGameManager::HandlePlayerKilled(const EventData&)
 {
     --m_Lives;
 
@@ -194,25 +200,13 @@ void GalagaGameManager::HandlePlayerKilled(const EventData& )
     }
 }
 
-void GalagaGameManager::HandleEnemyKilled(const EventData& event)
-{
-    ++m_EnemiesKilled;
-    const int points{ event.intValue };
-    AddScore(points);
-
-    CheckLevelComplete();
-}
-
-void GalagaGameManager::CheckLevelComplete()
-{
-    if (m_EnemiesKilled >= m_TotalEnemies)
-    {
-        EndGameWin();
-    }
-}
-
 void GalagaGameManager::Update(float deltaTime)
 {
+    if(m_LevelText)
+    {
+        m_LevelText->Update(deltaTime);
+    }
+
     if (m_ShowingGameOver)
     {
         m_GameOverTimer -= deltaTime;
@@ -224,22 +218,45 @@ void GalagaGameManager::Update(float deltaTime)
             loadMainMenu();
             auto& sceneManager = dae::SceneManager::GetInstance();
             sceneManager.SetActiveScene("MainMenu");
+            return;
         }
     }
 
-    static int DoOnce = 0;
-    if (DoOnce == 0)
+    if (m_IsPaused)
     {
-		++DoOnce;
-        CreateLifeDisplay();
+        return;
     }
 
+    if (m_DoOnce == 0)
+    {
+        ++m_DoOnce;
+        CreateLifeDisplay();
+        StartLevel(m_CurrentLevel);
+    }
+
+    UpdatePlayerCount();
+
+    UpdateLevelLogic(deltaTime);
+
+    UpdateEnemyAttacks(deltaTime);
+}
+
+void GalagaGameManager::Render() const
+{
+    if (m_LevelText)
+    {
+        m_LevelText->Render();
+    }
+}
+
+void GalagaGameManager::UpdatePlayerCount()
+{
     static int previousObserverCount = 0;
     int currentObserverCount{ GetOwner()->GetObserverCount() };
 
     if (currentObserverCount > previousObserverCount)
     {
-		previousObserverCount = currentObserverCount;
+        previousObserverCount = currentObserverCount;
         auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
         auto& allGameObjects = scene.GetAllGameObjects();
 
@@ -257,33 +274,177 @@ void GalagaGameManager::Update(float deltaTime)
             }
         }
 
-		m_PlayerCount = playerCount;
+        m_PlayerCount = playerCount;
 
         if (m_PlayerCount == 1)
         {
-			m_Lives = 4;
-		}
-		else if (m_PlayerCount == 2)
-		{
-			m_Lives = 5;
-		}
+            m_Lives = 4;
+        }
+        else if (m_PlayerCount == 2)
+        {
+            m_Lives = 5;
+        }
 
         GetOwner()->TriggerEvent("SetLives", m_Lives - 1);
     }
 }
 
-void GalagaGameManager::CountEnemiesInScene()
+void GalagaGameManager::UpdateLevelLogic(float deltaTime)
+{
+    if (!m_LevelStarted || m_AllEnemiesSpawned)
+        return;
+
+    if (m_EnemiesSpawned >= m_TotalEnemies)
+    {
+        m_AllEnemiesSpawned = true;
+        return;
+    }
+
+    m_EnemySpawnTimer += deltaTime;
+    if (m_EnemySpawnTimer >= m_EnemySpawnDelay)
+    {
+        SpawnNextEnemy();
+        m_EnemySpawnTimer = 0.0f;
+    }
+}
+
+void GalagaGameManager::UpdateEnemyAttacks(float deltaTime)
+{
+    if (!m_AllEnemiesSpawned)
+        return;
+
+    m_EnemyAttackTimer += deltaTime;
+    if (m_EnemyAttackTimer >= m_EnemyAttackInterval)
+    {
+        TriggerRandomEnemyAttack();
+        m_EnemyAttackTimer = 0.0f;
+
+        float baseInterval{ 3.0f - (m_CurrentLevel * 0.5f) };
+        m_EnemyAttackInterval = std::max(1.0f, baseInterval);
+    }
+}
+
+void GalagaGameManager::StartLevel(int level)
+{
+    m_CurrentLevel = level;
+    m_EnemiesKilled = 0;
+    m_EnemiesSpawned = 0;
+    m_LevelStarted = true;
+    m_AllEnemiesSpawned = false;
+    m_EnemySpawnTimer = 0.0f;
+
+    ClearEnemies();
+
+    SetupLevelParameters();
+
+    ShowLevelStart();
+}
+
+void GalagaGameManager::SetupLevelParameters()
+{
+    switch (m_CurrentLevel)
+    {
+    case 1:
+        m_TotalEnemies = 12;
+        m_EnemySpawnDelay = 1.0f;
+        m_EnemyAttackInterval = 3.0f;
+        break;
+    case 2:
+        m_TotalEnemies = 16;
+        m_EnemySpawnDelay = 0.8f;
+        m_EnemyAttackInterval = 2.5f;
+        break;
+    case 3:
+        m_TotalEnemies = 18;
+        m_EnemySpawnDelay = 0.6f;
+        m_EnemyAttackInterval = 2.0f;
+        break;
+    default:
+        break;
+    }
+}
+
+void GalagaGameManager::SpawnNextEnemy()
+{
+    auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
+
+    constexpr float startX{ 150.0f };
+    constexpr float startY{ 50.0f };
+    constexpr int columns{ 8 };
+
+    const int row{ m_EnemiesSpawned / columns };
+    const int col{ m_EnemiesSpawned % columns };
+
+    const float spawnX{ startX + (col * 50.0f) };
+    const float spawnY{ startY + (row * 40.0f) };
+
+    auto enemy = std::make_unique<dae::GameObject>();
+
+    if (m_CurrentLevel == 1)
+    {
+        if (m_EnemiesSpawned < 8)
+        {
+            enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+        }
+        else
+        {
+            //enemyType = dae::GameObjectTag::Butterfly;
+        }
+    }
+    else if (m_CurrentLevel == 2)
+    {
+        if (m_EnemiesSpawned < 10)
+        {
+            enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+        }
+        else
+        {
+            //enemyType = dae::GameObjectTag::Butterfly;
+        }
+    }
+    else if (m_CurrentLevel == 3)
+    {
+        if (m_EnemiesSpawned < 10)
+        {
+            enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+        }
+        else if (m_EnemiesSpawned < 16)
+        {
+            //enemyType = dae::GameObjectTag::Butterfly;
+        }
+        else
+        {
+            //enemyType = dae::GameObjectTag::Boss;
+        }
+    }
+
+    enemy->AddObserver(GetOwner()->GetComponent<Observer>());
+    GetOwner()->AddObserver(enemy->GetComponent<BaseAIController>());
+
+    enemy->GetComponent<BaseAIController>()->SetFormationPosition(glm::vec3(spawnX, spawnY, 0.f));
+
+    scene.Add(std::move(enemy));
+
+    ++m_EnemiesSpawned;
+
+    if (m_EnemiesSpawned >= m_TotalEnemies)
+    {
+        m_AllEnemiesSpawned = true;
+    }
+}
+
+void GalagaGameManager::TriggerRandomEnemyAttack()
 {
     auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
     auto& allGameObjects = scene.GetAllGameObjects();
 
-    int enemyCount{};
+    std::vector<dae::GameObject*> availableEnemies;
 
     for (const auto& gameObject : allGameObjects)
     {
         if (gameObject)
         {
-            auto playerComponent = gameObject->GetComponent<dae::PlayerComponent>();
+            auto playerComponent{ gameObject->GetComponent<dae::PlayerComponent>() };
             if (playerComponent)
             {
                 auto tag{ playerComponent->GetTag() };
@@ -291,13 +452,111 @@ void GalagaGameManager::CountEnemiesInScene()
                     tag == dae::GameObjectTag::Butterfly ||
                     tag == dae::GameObjectTag::Boss)
                 {
-                    ++enemyCount;
+                    availableEnemies.push_back(gameObject.get());
                 }
             }
         }
     }
 
-    m_TotalEnemies = enemyCount;
+    if (!availableEnemies.empty())
+    {
+        int attackersCount{ std::min(m_CurrentLevel, static_cast<int>(availableEnemies.size())) };
+        attackersCount = std::max(1, attackersCount);
+
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::shuffle(availableEnemies.begin(), availableEnemies.end(), gen);
+
+        for (int i{}; i < attackersCount; ++i)
+        {
+            auto aiController = availableEnemies[i]->GetComponent<BaseAIController>();
+            if (aiController)
+            {
+                aiController->SetAttack(true);
+            }
+        }
+    }
+}
+
+void GalagaGameManager::ClearEnemies()
+{
+    auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
+    auto& allGameObjects = scene.GetAllGameObjects();
+
+    std::vector<dae::GameObject*> enemiesToRemove;
+
+    for (const auto& gameObject : allGameObjects)
+    {
+        if (gameObject)
+        {
+            auto playerComponent{ gameObject->GetComponent<dae::PlayerComponent>() };
+            if (playerComponent)
+            {
+                auto tag{ playerComponent->GetTag() };
+                if (tag == dae::GameObjectTag::Bee ||
+                    tag == dae::GameObjectTag::Butterfly ||
+                    tag == dae::GameObjectTag::Boss)
+                {
+                    enemiesToRemove.push_back(gameObject.get());
+                    enemiesToRemove.back()->RemoveObserver(GetOwner()->GetComponent<Observer>());
+                    GetOwner()->RemoveObserver(enemiesToRemove.back()->GetComponent<Observer>());
+                }
+            }
+        }
+    }
+
+    for (auto enemy : enemiesToRemove)
+    {
+        scene.Remove(enemy);
+    }
+}
+
+void GalagaGameManager::ShowLevelStart()
+{
+    m_LevelText = std::make_unique<dae::GameObject>();
+    m_LevelText->SetPosition(500, 50);
+
+    auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 28);
+    std::string levelString = "LEVEL " + std::to_string(m_CurrentLevel);
+    m_LevelText->AddComponent<dae::TextComponent>(levelString, font, m_LevelText.get());
+
+    ServiceLocator::getSoundSystem().play(9, 0.8f);
+}
+
+void GalagaGameManager::SkipToNextLevel()
+{
+    if (m_CurrentLevel < 3)
+    {
+        StartLevel(m_CurrentLevel + 1);
+    }
+    else
+    {
+        EndGameWin();
+    }
+}
+
+void GalagaGameManager::HandleEnemyKilled(const EventData& event)
+{
+    ++m_EnemiesKilled;
+    const int points = event.intValue;
+    AddScore(points);
+
+    CheckLevelComplete();
+}
+
+void GalagaGameManager::CheckLevelComplete()
+{
+    if (m_EnemiesKilled >= m_TotalEnemies)
+    {
+        if (m_CurrentLevel < 3)
+        {
+            StartLevel(m_CurrentLevel + 1);
+        }
+        else
+        {
+            EndGameWin();
+        }
+    }
 }
 
 void GalagaGameManager::CreateLifeDisplay()

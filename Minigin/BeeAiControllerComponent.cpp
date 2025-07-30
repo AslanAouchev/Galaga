@@ -104,11 +104,6 @@ void BeeAiControllerComponent::OnGenerateDivePath(std::vector<glm::vec3>& path)
     }
 }
 
-bool BeeAiControllerComponent::OnShouldDive()
-{
-    return !GetPlayers().empty();
-}
-
 void BeeAiControllerComponent::Shoot()
 {
 	//GetOwner()->GetComponent<dae::PlayerComponent>()->Fire();

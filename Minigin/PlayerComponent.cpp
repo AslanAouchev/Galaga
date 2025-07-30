@@ -63,7 +63,7 @@ void dae::PlayerComponent::TakeDamage(int amount)
     
         if (m_Tag != GameObjectTag::Player)
         {
-            GetOwner()->SetActive(false);
+			GetOwner()->SetActive(false);
             GetOwner()->TriggerEvent("EnemyKilled", m_ScoreValue);
             return;
         }

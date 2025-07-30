@@ -26,7 +26,6 @@ private:
 
     void OnUpdateFormationBehavior(float deltaTime) override;
     void OnGenerateDivePath(std::vector<glm::vec3>& path) override;
-    bool OnShouldDive() override;
 	void Shoot() override;
     void UpdatePlayersFromScene();
 };

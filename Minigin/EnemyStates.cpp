@@ -40,25 +40,20 @@ std::unique_ptr<EnemyState> FormationState::Update(BaseAIController* controller,
     return nullptr;
 }
 
-void FormationState::Enter(BaseAIController*)
+void FormationState::Enter(BaseAIController* controller)
 {
-    std::cout << "entering formation\n";
+    controller->SetAttack(false);
 }
 
 std::unique_ptr<EnemyState> InFormationState::Update(BaseAIController* controller, float deltaTime)
 {
     controller->OnUpdateFormationBehavior(deltaTime);
 
-    m_DiveTimer += deltaTime;
-
     if (!controller->GetPlayers().empty())
     {
         if (controller->OnShouldDive())
         {
-            if (m_DiveTimer >= 5.0f)
-            {
-                return EnemyState::CreateDivingState();
-            }
+            return EnemyState::CreateDivingState();
         }
     }
 
@@ -71,12 +66,13 @@ void InFormationState::Enter(BaseAIController* controller)
 
     if (controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
     {
+        controller->SetAttack(false);
+
         if (playerComp)
         {
             playerComp->SetScore(100);
         }
     }
-    m_DiveTimer = 0.0f;
 }
 
 std::unique_ptr<EnemyState> DivingState::Update(BaseAIController* controller, float deltaTime)

@@ -189,3 +189,8 @@ dae::GameObject* BaseAIController::GetClosestPlayerInRange(float range) const
 
     return closest;
 }
+
+bool BaseAIController::OnShouldDive()
+{
+    return m_CanAttack;
+}

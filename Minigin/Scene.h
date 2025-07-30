@@ -26,6 +26,8 @@ namespace dae
 
 	private: 
 		explicit Scene(const std::string& name);
+		void CleanupObjectObserverRelationships(GameObject* objectToRemove);
+		void CleanupComponentObservers(GameObject* objectToRemove, GameObject* otherObject);
 
 		std::string m_name;
 		std::vector<std::unique_ptr<GameObject>> m_objects{};

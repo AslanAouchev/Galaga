@@ -54,6 +54,22 @@ namespace dae
 			return nullptr;
 		};
 
+		std::vector<Component*> GetAllComponents() const
+		{
+			std::vector<Component*> components;
+			components.reserve(m_Components.size());
+
+			for (const auto& component : m_Components)
+			{
+				if (component)
+				{
+					components.push_back(component.get());
+				}
+			}
+
+			return components;
+		}
+
 		void SetPosition(float x, float y);
 		Transform GetTransform() const { return m_transform; };
 
@@ -90,12 +106,20 @@ namespace dae
 
 		void NotifyObservers(const EventData& event)
 		{
-			auto observersCopy{ m_Observers };
+			auto observersCopy = m_Observers;
+
 			for (auto* observer : observersCopy)
 			{
-				if (observer)
+				if (observer && std::find(m_Observers.begin(), m_Observers.end(), observer) != m_Observers.end())
 				{
-					observer->OnNotify(event);
+					try
+					{
+						observer->OnNotify(event);
+					}
+					catch (...)
+					{
+						RemoveObserver(observer);
+					}
 				}
 			}
 		}
@@ -106,7 +130,10 @@ namespace dae
 			NotifyObservers(event);
 		}
 
-		void SetActive(bool active) { m_IsActive = active; }
+		void SetActive(bool active)
+		{
+			m_IsActive = active;
+		}
 
 	private:
 

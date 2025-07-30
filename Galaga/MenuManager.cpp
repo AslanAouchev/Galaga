@@ -1,5 +1,4 @@
 #include "MenuManager.h"
-#include "SceneManager.h"
 #include <iostream>
 #include "GameObject.h"
 
@@ -69,8 +68,6 @@ void MenuManager::Confirm()
 
 void MenuManager::LoadScene(GameScene scene)
 {
-    auto& sceneManager = dae::SceneManager::GetInstance();
-
     switch (scene)
     {
     case GameScene::SinglePlayer:
@@ -78,15 +75,12 @@ void MenuManager::LoadScene(GameScene scene)
         break;
     case GameScene::TwoPlayer:
         loadTwoPlayer();
-        sceneManager.SetActiveScene("TwoPlayer");
         break;
     case GameScene::HighScores:
         loadHighScores();
-        sceneManager.SetActiveScene("HighScore");
         break;
     case GameScene::PvP:
         loadPvP();
-        sceneManager.SetActiveScene("PvP");
         break;
     }
 }

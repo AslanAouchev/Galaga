@@ -33,9 +33,6 @@ class InFormationState : public EnemyState
 public:
     std::unique_ptr<EnemyState> Update(BaseAIController* controller, float deltaTime) override;
     void Enter(BaseAIController* controller) override;
-
-private:
-    float m_DiveTimer{};
 };
 
 class DivingState : public EnemyState
