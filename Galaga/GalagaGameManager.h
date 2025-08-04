@@ -22,26 +22,31 @@ public:
     virtual void Update(float deltaTime) override;
     virtual void Render() const override;
 
+    void SetPvPMode();
 private:
 
     int m_PauseMenuSelection{ 0 };
     int m_Score{ 0 };
     int m_Lives{ 3 };
-    bool m_IsPaused{ false };
-    bool m_EnteringName{ false };
     int m_EnemiesKilled{ 0 };
     int m_TotalEnemies{ 0 };
     int m_ShotAmount{ 0 };
     int m_PlayerCount{ 0 };
     int m_DoOnce{};
+    int m_CurrentLevel{ 1 };
 
-    bool m_ShowingGameOver{ false };
+    float m_BossDiveCooldown{ 0.0f };
+    const float m_BossDiveCooldownDuration{ 3.0f };
+
     float m_GameOverTimer{ 0.0f };
     const float m_GameOverDuration{ 2.0f };
 
-    int m_CurrentLevel{ 1 };
     bool m_LevelStarted{ false };
     bool m_AllEnemiesSpawned{ false };
+    bool m_pvpMode{};
+    bool m_IsPaused{ false };
+    bool m_EnteringName{ false };
+    bool m_ShowingGameOver{ false };
 
     float m_EnemySpawnTimer{  };
     float m_EnemySpawnDelay{ 1.0f };
@@ -51,6 +56,7 @@ private:
     float m_EnemyAttackInterval{3.0f};
 
     std::unique_ptr<dae::GameObject> m_LevelText;
+    std::unique_ptr<dae::GameObject> m_ScoreDisplay;
 
     void HandlePlayerKilled(const EventData& event);
     void HandleEnemyKilled(const EventData& event);
@@ -82,4 +88,7 @@ private:
     void ClearEnemies();
     void ShowLevelStart();
     void SkipToNextLevel();
+
+    void CreateScoreDisplay();
+    void UpdateScoreDisplay();
 };

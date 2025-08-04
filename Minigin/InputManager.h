@@ -2,6 +2,7 @@
 #include "Singleton.h"
 #include "Command.h"
 #include <memory>
+#include <SDL.h>
 
 namespace dae
 {

@@ -11,6 +11,9 @@
 #include "LifeIconComponent.h"
 #include <BeeAiControllerComponent.h>
 #include <random>
+#include "InputCommands.h"
+#include "InputManager.h"
+#include <SDL_gamecontroller.h>
 
 GalagaGameManager::GalagaGameManager(dae::GameObject* pOwner) : dae::Component(pOwner)
 {
@@ -186,6 +189,7 @@ void GalagaGameManager::EndGameLose()
 void GalagaGameManager::AddScore(int points)
 {
     m_Score += points;
+    UpdateScoreDisplay();
 }
 
 void GalagaGameManager::HandlePlayerKilled(const EventData&)
@@ -205,6 +209,16 @@ void GalagaGameManager::Update(float deltaTime)
     if(m_LevelText)
     {
         m_LevelText->Update(deltaTime);
+    }
+
+	if (m_ScoreDisplay)
+	{
+		m_ScoreDisplay->Update(deltaTime);
+	}
+
+    if (m_pvpMode && m_BossDiveCooldown > 0.0f)
+    {
+        m_BossDiveCooldown -= deltaTime;
     }
 
     if (m_ShowingGameOver)
@@ -231,6 +245,7 @@ void GalagaGameManager::Update(float deltaTime)
     {
         ++m_DoOnce;
         CreateLifeDisplay();
+        CreateScoreDisplay();
         StartLevel(m_CurrentLevel);
     }
 
@@ -247,6 +262,16 @@ void GalagaGameManager::Render() const
     {
         m_LevelText->Render();
     }
+
+	if (m_ScoreDisplay)
+	{
+		m_ScoreDisplay->Render();
+	}
+}
+
+void GalagaGameManager::SetPvPMode()
+{
+    m_pvpMode = true;
 }
 
 void GalagaGameManager::UpdatePlayerCount()
@@ -336,31 +361,54 @@ void GalagaGameManager::StartLevel(int level)
     ClearEnemies();
 
     SetupLevelParameters();
-
+    UpdateScoreDisplay();
     ShowLevelStart();
 }
 
 void GalagaGameManager::SetupLevelParameters()
 {
-    switch (m_CurrentLevel)
+    if (m_pvpMode)
     {
-    case 1:
-        m_TotalEnemies = 12;
-        m_EnemySpawnDelay = 1.0f;
-        m_EnemyAttackInterval = 3.0f;
-        break;
-    case 2:
-        m_TotalEnemies = 16;
-        m_EnemySpawnDelay = 0.8f;
-        m_EnemyAttackInterval = 2.5f;
-        break;
-    case 3:
-        m_TotalEnemies = 18;
-        m_EnemySpawnDelay = 0.6f;
-        m_EnemyAttackInterval = 2.0f;
-        break;
-    default:
-        break;
+        switch (m_CurrentLevel)
+        {
+        case 1:
+            m_TotalEnemies = 6;
+            m_EnemySpawnDelay = 1.2f;
+            break;
+        case 2:
+            m_TotalEnemies = 8;
+            m_EnemySpawnDelay = 1.0f;
+            break;
+        case 3:
+            m_TotalEnemies = 10;
+            m_EnemySpawnDelay = 0.8f;
+            break;
+        default:
+            break;
+        }
+    }
+    else
+    {
+        switch (m_CurrentLevel)
+        {
+        case 1:
+            m_TotalEnemies = 12;
+            m_EnemySpawnDelay = 1.0f;
+            m_EnemyAttackInterval = 3.0f;
+            break;
+        case 2:
+            m_TotalEnemies = 16;
+            m_EnemySpawnDelay = 0.8f;
+            m_EnemyAttackInterval = 2.5f;
+            break;
+        case 3:
+            m_TotalEnemies = 18;
+            m_EnemySpawnDelay = 0.6f;
+            m_EnemyAttackInterval = 2.0f;
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -380,41 +428,55 @@ void GalagaGameManager::SpawnNextEnemy()
 
     auto enemy = std::make_unique<dae::GameObject>();
 
-    if (m_CurrentLevel == 1)
+    if (m_pvpMode)
     {
-        if (m_EnemiesSpawned < 8)
+        if (m_EnemiesSpawned == 0)
         {
             enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+            auto& input = dae::InputManager::GetInstance();
+			input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ShootAICOmmand>(enemy.get()), 1);
+            input.BindCommand(SDL_CONTROLLER_BUTTON_B, std::make_unique<DiveAICOmmand>(enemy.get()), 1);
         }
-        else
-        {
-            //enemyType = dae::GameObjectTag::Butterfly;
-        }
+		else if (m_EnemiesSpawned < 6)
+		{
+			enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+		}
+		else if (m_EnemiesSpawned < 10)
+		{
+			//enemyType = dae::GameObjectTag::Butterfly;
+		}
     }
-    else if (m_CurrentLevel == 2)
+    else
     {
-        if (m_EnemiesSpawned < 10)
+        if (m_CurrentLevel == 1)
         {
             enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
         }
-        else
+        else if (m_CurrentLevel == 2)
         {
-            //enemyType = dae::GameObjectTag::Butterfly;
+            if (m_EnemiesSpawned < 10)
+            {
+                enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+            }
+            else
+            {
+                //enemyType = dae::GameObjectTag::Butterfly;
+            }
         }
-    }
-    else if (m_CurrentLevel == 3)
-    {
-        if (m_EnemiesSpawned < 10)
+        else if (m_CurrentLevel == 3)
         {
-            enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
-        }
-        else if (m_EnemiesSpawned < 16)
-        {
-            //enemyType = dae::GameObjectTag::Butterfly;
-        }
-        else
-        {
-            //enemyType = dae::GameObjectTag::Boss;
+            if (m_EnemiesSpawned < 10)
+            {
+                enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+            }
+            else if (m_EnemiesSpawned < 16)
+            {
+                //enemyType = dae::GameObjectTag::Butterfly;
+            }
+            else
+            {
+                //enemyType = dae::GameObjectTag::Boss;
+            }
         }
     }
 
@@ -450,7 +512,7 @@ void GalagaGameManager::TriggerRandomEnemyAttack()
                 auto tag{ playerComponent->GetTag() };
                 if (tag == dae::GameObjectTag::Bee ||
                     tag == dae::GameObjectTag::Butterfly ||
-                    tag == dae::GameObjectTag::Boss)
+                    (tag == dae::GameObjectTag::Boss && !m_pvpMode))
                 {
                     availableEnemies.push_back(gameObject.get());
                 }
@@ -498,8 +560,6 @@ void GalagaGameManager::ClearEnemies()
                     tag == dae::GameObjectTag::Boss)
                 {
                     enemiesToRemove.push_back(gameObject.get());
-                    enemiesToRemove.back()->RemoveObserver(GetOwner()->GetComponent<Observer>());
-                    GetOwner()->RemoveObserver(enemiesToRemove.back()->GetComponent<Observer>());
                 }
             }
         }
@@ -573,5 +633,27 @@ void GalagaGameManager::CreateLifeDisplay()
         GetOwner()->AddObserver(lifeIcon->GetComponent<LifeIconComponent>());
 
         scene.Add(std::move(lifeIcon));
+    }
+}
+
+void GalagaGameManager::CreateScoreDisplay()
+{
+    m_ScoreDisplay = std::make_unique<dae::GameObject>();
+    m_ScoreDisplay->SetPosition(250.0f, 15.0f);
+
+    auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 24);
+    m_ScoreDisplay->AddComponent<dae::TextComponent>("SCORE: 0", font, m_ScoreDisplay.get());
+}
+
+void GalagaGameManager::UpdateScoreDisplay()
+{
+    if (m_ScoreDisplay)
+    {
+        auto textComponent = m_ScoreDisplay->GetComponent<dae::TextComponent>();
+        if (textComponent)
+        {
+            std::string scoreText = "SCORE: " + std::to_string(m_Score);
+            textComponent->SetText(scoreText);
+        }
     }
 }

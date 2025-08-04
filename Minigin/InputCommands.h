@@ -3,6 +3,7 @@
 #include "PlayerComponent.h"
 #include <SDLSoundSystem.h>
 #include "SceneManager.h"
+#include "BaseAIController.h"
 
 extern void loadMainMenu();
 
@@ -267,6 +268,40 @@ public:
     virtual void Execute() override
     {
         GetGameObject()->TriggerEvent("SkipLevel");
+    }
+
+    virtual void Execute(float) override
+    {
+
+    }
+};
+
+class ShootAICOmmand : public GameObjectCommand
+{
+public:
+
+    ShootAICOmmand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
+
+    virtual void Execute() override
+    {
+		GetGameObject()->GetComponent<BaseAIController>()->Shoot();
+    }
+
+    virtual void Execute(float) override
+    {
+
+    }
+};
+
+class DiveAICOmmand : public GameObjectCommand
+{
+public:
+
+    DiveAICOmmand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
+
+    virtual void Execute() override
+    {
+        GetGameObject()->GetComponent<BaseAIController>()->SetAttack(true);
     }
 
     virtual void Execute(float) override
