@@ -70,7 +70,7 @@ void dae::PlayerComponent::TakeDamage(int amount)
     }
 }
 
-bool dae::PlayerComponent::Fire()
+bool dae::PlayerComponent::Fire(bool ShootUp)
 {
     if (m_Paused || m_KilledPaused)
     {
@@ -88,9 +88,16 @@ bool dae::PlayerComponent::Fire()
 
         const auto playerPos{ GetOwner()->GetTransform().GetPosition() };
 
-        bullet->SetPosition(playerPos.x + 16, playerPos.y - 10);
+        bullet->SetPosition(playerPos.x + 9, playerPos.y - 10);
 
-        bullet->AddComponent<dae::BulletComponent>(bullet.get(), m_BulletString, m_BulletTag, m_BulletSpeed);
+        if(ShootUp)
+        {
+            bullet->AddComponent<dae::BulletComponent>(bullet.get(), m_BulletString, m_BulletTag, m_BulletSpeed);
+        }
+        else
+        {
+            bullet->AddComponent<dae::BulletComponent>(bullet.get(), m_BulletString, m_BulletTag, -m_BulletSpeed * 1.5f);
+        }
 
         auto& scene{ dae::SceneManager::GetInstance().GetActiveScene() };
 		scene.Add(std::move(bullet));

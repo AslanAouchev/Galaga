@@ -358,6 +358,8 @@ void GalagaGameManager::StartLevel(int level)
     m_AllEnemiesSpawned = false;
     m_EnemySpawnTimer = 0.0f;
 
+    m_BossDiveCooldown = 0.0f;
+
     ClearEnemies();
 
     SetupLevelParameters();

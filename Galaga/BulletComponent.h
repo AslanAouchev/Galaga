@@ -8,7 +8,7 @@ namespace dae
 {
     enum class BulletTag;
 
-    class BulletComponent final : public Component
+	class BulletComponent final : public Component, public Observer
     {
     public:
         void Update(const float deltaTime) override;
@@ -20,7 +20,6 @@ namespace dae
         BulletComponent& operator=(const BulletComponent& other) = delete;
         BulletComponent& operator=(BulletComponent&& other) = delete;
 
-        bool IsOffScreen() const { return m_IsOffScreen; }
         bool IsDestroyed() const { return m_IsDestroyed; }
         void SetDirection(float x, float y) { m_DirectionX = x; m_DirectionY = y; }
 
@@ -31,11 +30,14 @@ namespace dae
         void CheckCollisions();
         void Destroy() { m_IsDestroyed = true; }
 
+        virtual void OnNotify(const EventData& event) override;
+
         float m_Speed{};
         float m_DirectionX{ 0.0f };
         float m_DirectionY{ -1.0f };
-        bool m_IsOffScreen{ false };
+        float m_StrafeDirection{};
         bool m_IsDestroyed{ false };
+        bool m_IsPaused{};
         BulletTag m_BulletTag;
 
         std::unique_ptr<dae::TextureComponent> m_pTexture{ nullptr };

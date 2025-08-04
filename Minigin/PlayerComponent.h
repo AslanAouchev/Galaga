@@ -36,7 +36,7 @@ namespace dae
 
 		void TakeDamage(int amount);
 		bool IsDead() const { return m_IsDead; }
-		bool Fire();
+		bool Fire(bool ShootUp = true);
 		glm::vec2 GetTextureSize() const;
 
 		GameObjectTag GetTag() const { return m_Tag; }
