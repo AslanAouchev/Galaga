@@ -5,15 +5,15 @@
 #include "SceneManager.h"
 #include <PlayerComponent.h>
 #include <EnemyStates.h>
+#include <random>
 
 BeeAiControllerComponent::BeeAiControllerComponent(dae::GameObject* owner)
 	: Component(owner), BaseAIController(owner)
 {
     SetSpeed(120.0f);
     SetDiveCooldown(0.5f);
-    owner->AddComponent<dae::PlayerComponent>(owner, "enemy.png", "BulletEnemy.png", 1, 200.0f);
-
-    auto playerComp{ owner->GetComponent<dae::PlayerComponent>() };
+    
+    auto playerComp{ owner->AddComponent<dae::PlayerComponent>(owner, "Bee.png", "BulletEnemy.png", 1, 200.0f) };
     if (playerComp)
     {
         playerComp->SetBulletTag(dae::BulletTag::EnemyBullet);
@@ -83,8 +83,8 @@ void BeeAiControllerComponent::OnGenerateDivePath(std::vector<glm::vec3>& path)
 {
     path.clear();
     const auto currentPos{ GetOwner()->GetTransform().GetPosition() };
-
     auto targetPlayer{ GetTargetPlayer() };
+
     if (!targetPlayer)
     {
         targetPlayer = GetClosestPlayer();
@@ -93,13 +93,22 @@ void BeeAiControllerComponent::OnGenerateDivePath(std::vector<glm::vec3>& path)
     if (targetPlayer)
     {
         const auto playerPos{ targetPlayer->GetTransform().GetPosition() };
-        path.push_back({ currentPos.x, currentPos.y + 100.0f, 0 });
-        path.push_back({ playerPos.x, currentPos.y + 200.0f, 0 });
-        path.push_back({ playerPos.x, 500.0f, 0 });
+
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_real_distribution<float> randomOffset(-30.0f, 30.0f);
+        const float predictedX{ playerPos.x + randomOffset(gen) };
+
+        path.push_back({ currentPos.x + (predictedX - currentPos.x) * 0.3f, currentPos.y + 80.0f, 0 });
+        path.push_back({ predictedX - 40.0f, currentPos.y + 140.0f, 0 });
+        path.push_back({ predictedX, playerPos.y, 0 });
+        path.push_back({ predictedX + 40.0f, playerPos.y + 60.0f, 0 });
+        path.push_back({ predictedX + 100.0f, 500.0f, 0 });
     }
     else
     {
-        path.push_back({ currentPos.x, currentPos.y + 200.0f, 0 });
+        path.push_back({ currentPos.x, currentPos.y + 150.0f, 0 });
+        path.push_back({ currentPos.x + 50.0f, currentPos.y + 250.0f, 0 });
         path.push_back({ currentPos.x, 500.0f, 0 });
     }
 }
