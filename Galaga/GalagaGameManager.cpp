@@ -15,7 +15,6 @@
 #include "InputManager.h"
 #include <SDL_gamecontroller.h>
 #include "BossAIControllerComponent.h"
-#include "ButterflyAIControllerComponent.h"
 
 GalagaGameManager::GalagaGameManager(dae::GameObject* pOwner) : dae::Component(pOwner)
 {
