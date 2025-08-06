@@ -187,7 +187,17 @@ std::unique_ptr<EnemyState> DivingState::Update(BaseAIController* controller, fl
     const auto currentPos{ controller->GetOwnerAI()->GetTransform().GetPosition() };
     if (currentPos.y > 480.f || currentPos.x < -50.0f || currentPos.x > 680.0f)
     {
-        return EnemyState::CreateFormationState();
+        if(!m_IsBee)
+        {
+            return EnemyState::CreateFormationState();
+        }
+        else
+        {
+            if (m_BeeController->CanGoToFormation())
+            {
+                return EnemyState::CreateFormationState();
+            }
+        }
     }
 
     return nullptr;
@@ -200,6 +210,9 @@ void DivingState::Enter(BaseAIController* controller)
     m_BossController = dynamic_cast<BossAIControllerComponent*>(controller);
     m_IsBoss = (m_BossController != nullptr);
 
+    m_BeeController = dynamic_cast<BeeAiControllerComponent*>(controller);
+    m_IsBee = (m_BeeController != nullptr);
+
     if (playerComp)
     {
         if (m_IsBoss)
@@ -207,7 +220,7 @@ void DivingState::Enter(BaseAIController* controller)
             playerComp->SetScore(400);
 			m_ShootInterval = 1.0f;
         }
-        else if (controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
+        else if (m_IsBee)
         {
             playerComp->SetScore(100);
             m_ShootInterval = 1.25f;

@@ -5,6 +5,7 @@
 
 class BaseAIController;
 class BossAIControllerComponent;
+class BeeAiControllerComponent;
 
 class EnemyState
 {
@@ -50,8 +51,10 @@ private:
     float m_ShootInterval{ 1.5f };
 
     bool m_IsBoss{ false };
+    bool m_IsBee{ false };
     bool m_TractorBeamUsed{};
     BossAIControllerComponent* m_BossController{ nullptr };
+    BeeAiControllerComponent* m_BeeController{ nullptr };
 };
 
 class InDeadPlayerFormationState : public EnemyState

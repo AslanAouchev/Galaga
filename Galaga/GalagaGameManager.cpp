@@ -173,7 +173,7 @@ void GalagaGameManager::EndGameLose()
     auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
 
     auto gameOverObject = std::make_unique<dae::GameObject>();
-    gameOverObject->SetPosition(250, 180);
+    gameOverObject->SetPosition(200, 180);
     auto gameOverFont = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 48);
     gameOverObject->AddComponent<dae::TextComponent>("GAME OVER", gameOverFont, gameOverObject.get());
     scene.Add(std::move(gameOverObject));
@@ -282,9 +282,9 @@ void GalagaGameManager::Update(float deltaTime)
         CreateLifeDisplay();
         CreateScoreDisplay();
         StartLevel(m_CurrentLevel);
-    }
 
-    GetOwner()->TriggerEvent("SetLives", m_Lives - 1);
+        GetOwner()->TriggerEvent("SetLives", m_Lives - 1);
+    }
 
     UpdateLevelLogic(deltaTime);
 
@@ -390,7 +390,6 @@ void GalagaGameManager::UpdateEnemyAttacks(float deltaTime)
 void GalagaGameManager::StartLevel(int level)
 {
     m_CurrentLevel = level;
-    m_EnemiesKilled = 0;
     m_EnemiesSpawned = 0;
     m_LevelStarted = true;
     m_AllEnemiesSpawned = false;
@@ -539,7 +538,7 @@ void GalagaGameManager::SpawnNextEnemy()
             }
             else if (row >= 2)
             {
-                enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+                enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
             }
             else
             {
@@ -554,7 +553,7 @@ void GalagaGameManager::SpawnNextEnemy()
             }
             else if (row >= 2)
             {
-                enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+                enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
             }
             else
             {
@@ -748,7 +747,7 @@ void GalagaGameManager::ClearEnemies()
 void GalagaGameManager::ShowLevelStart()
 {
     m_LevelText = std::make_unique<dae::GameObject>();
-    m_LevelText->SetPosition(500, 50);
+    m_LevelText->SetPosition(535, 0);
 
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 28);
     std::string levelString = "LEVEL " + std::to_string(m_CurrentLevel);
