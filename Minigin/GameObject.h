@@ -135,6 +135,11 @@ namespace dae
 			m_IsActive = active;
 		}
 
+		bool IsActive() const
+		{
+			return m_IsActive;
+		}
+
 	private:
 
 		void AddChild(GameObject* pChild);

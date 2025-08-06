@@ -57,6 +57,11 @@ void dae::PlayerComponent::TakeDamage(int amount)
         GetOwner()->TriggerEvent("PlayerHit");
     }
 
+    if (m_Tag == GameObjectTag::Boss)
+    {
+        m_pTexture->SetTexture("BossHit.png");
+    }
+
     if (m_Health <= 0)
     {
         m_IsDead = true;

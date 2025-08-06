@@ -3,6 +3,7 @@
 #include <iostream>
 #include <PlayerComponent.h>
 #include <BeeAiControllerComponent.h>
+#include "../Galaga/BossAIControllerComponent.h"
 
 std::unique_ptr<EnemyState> EnemyState::CreateFormationState()
 {
@@ -42,6 +43,20 @@ std::unique_ptr<EnemyState> FormationState::Update(BaseAIController* controller,
 
 void FormationState::Enter(BaseAIController* controller)
 {
+    auto playerComp = controller->GetOwnerAI()->GetComponent<dae::PlayerComponent>();
+
+    if(playerComp)
+    {
+        if (controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
+        {
+            playerComp->SetScore(50);
+        }
+        else if (controller->GetOwnerAI()->GetComponent<BossAIControllerComponent>())
+        {
+            playerComp->SetScore(150);
+        }
+    }
+
     controller->SetAttack(false);
 }
 
@@ -64,15 +79,19 @@ void InFormationState::Enter(BaseAIController* controller)
 {
     auto playerComp = controller->GetOwnerAI()->GetComponent<dae::PlayerComponent>();
 
-    if (controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
+    if (playerComp)
     {
-        controller->SetAttack(false);
-
-        if (playerComp)
+        if (controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
         {
-            playerComp->SetScore(100);
+            playerComp->SetScore(50);
+        }
+        else if (controller->GetOwnerAI()->GetComponent<BossAIControllerComponent>())
+        {
+            playerComp->SetScore(150);
         }
     }
+
+    controller->SetAttack(false);
 }
 
 std::unique_ptr<EnemyState> DivingState::Update(BaseAIController* controller, float deltaTime)
@@ -84,26 +103,75 @@ std::unique_ptr<EnemyState> DivingState::Update(BaseAIController* controller, fl
         m_CurrentPathPoint = 0;
     }
 
+    bool isTractorBeamActive{};
+    if (m_IsBoss)
+    {
+        isTractorBeamActive = m_BossController->IsTractorBeamActive();
+    }
+
     m_ShootTimer += deltaTime;
     if (m_ShootTimer >= m_ShootInterval && controller->GetTargetPlayer())
     {
-        controller->Shoot();
-        m_ShootTimer = 0.0f;
+        if (m_IsBoss)
+        {
+            const auto currentPos{ controller->GetOwnerAI()->GetTransform().GetPosition() };
+
+            if (isTractorBeamActive && !m_TractorBeamUsed &&
+                currentPos.y >= 330.0f && currentPos.y <= 350.0f)
+            {
+                m_BossController->ShootTractorBeam();
+                m_TractorBeamUsed = true;
+                m_ShootTimer = 0.0f;
+            }
+            if (!isTractorBeamActive)
+            {
+                controller->Shoot();
+                m_ShootTimer = 0.0f;
+            }
+        }
+        else
+        {
+            controller->Shoot();
+            m_ShootTimer = 0.0f;
+        }
     }
 
     if (m_CurrentPathPoint < m_DivePath.size())
     {
         const glm::vec3 target{ m_DivePath[m_CurrentPathPoint] };
         const float distanceToTarget{ controller->GetDistanceToPosition(target) };
-        controller->MoveTowards(target, controller->GetSpeed() * 1.5f, deltaTime);
-        if (distanceToTarget < 15.0f)
+
+        bool shouldStop{};
+        if (m_IsBoss && isTractorBeamActive)
         {
-            m_CurrentPathPoint++;
+            const auto currentPos{ controller->GetOwnerAI()->GetTransform().GetPosition() };
+            if (currentPos.y >= 330.0f && currentPos.y <= 350.0f)
+            {
+                shouldStop = true;
+            }
+        }
+
+        if (!shouldStop)
+        {
+            float baseSpeed{ controller->GetSpeed() };
+            float speedMultiplier{ m_IsBoss ? 1.0f : 1.5f };
+
+            controller->MoveTowards(target, baseSpeed * speedMultiplier, deltaTime);
+
+            if (distanceToTarget < 15.0f)
+            {
+                m_CurrentPathPoint++;
+            }
         }
     }
 
     if (m_CurrentPathPoint >= m_DivePath.size())
     {
+        if (m_IsBoss && isTractorBeamActive)
+        {
+            return nullptr;
+        }
+
         return EnemyState::CreateFormationState();
     }
 
@@ -120,17 +188,25 @@ void DivingState::Enter(BaseAIController* controller)
 {
     auto playerComp = controller->GetOwnerAI()->GetComponent<dae::PlayerComponent>();
 
-    if(controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
+    m_BossController = dynamic_cast<BossAIControllerComponent*>(controller);
+    m_IsBoss = (m_BossController != nullptr);
+
+    if (playerComp)
     {
-        if (playerComp)
+        if (m_IsBoss)
         {
-            playerComp->SetScore(50);
+            playerComp->SetScore(400);
+        }
+        else if (controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
+        {
+            playerComp->SetScore(100);
         }
     }
 
     m_DivePath.clear();
     m_CurrentPathPoint = 0;
     m_PathGenerated = false;
+    m_TractorBeamUsed = false;
 }
 
 std::unique_ptr<EnemyState> InDeadPlayerFormationState::Update(BaseAIController* controller, float deltaTime)
@@ -151,7 +227,19 @@ std::unique_ptr<EnemyState> InDeadPlayerFormationState::Update(BaseAIController*
     return nullptr;
 }
 
-void InDeadPlayerFormationState::Enter(BaseAIController*)
+void InDeadPlayerFormationState::Enter(BaseAIController* controller)
 {
-    std::cout << "starting in dead player formation state\n";
+    auto playerComp = controller->GetOwnerAI()->GetComponent<dae::PlayerComponent>();
+
+    if (playerComp)
+    {
+        if (controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
+        {
+            playerComp->SetScore(50);
+        }
+        else if (controller->GetOwnerAI()->GetComponent<BossAIControllerComponent>())
+        {
+            playerComp->SetScore(150);
+        }
+    }
 }

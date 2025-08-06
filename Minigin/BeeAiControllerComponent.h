@@ -21,12 +21,9 @@ public:
 
 private:
     float m_FormationWobble{};
-    float m_ExistenceTimer{};
-    bool m_HasFoundPlayers{};
 
     void OnUpdateFormationBehavior(float deltaTime) override;
     void OnGenerateDivePath(std::vector<glm::vec3>& path) override;
 	void Shoot() override;
-    void UpdatePlayersFromScene();
 };
 

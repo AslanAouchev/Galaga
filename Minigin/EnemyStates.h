@@ -4,6 +4,7 @@
 #include <vector>
 
 class BaseAIController;
+class BossAIControllerComponent;
 
 class EnemyState
 {
@@ -47,6 +48,10 @@ private:
     bool m_PathGenerated{};
     float m_ShootTimer{};
     float m_ShootInterval{ 0.5f };
+
+    bool m_IsBoss{ false };
+    bool m_TractorBeamUsed{};
+    BossAIControllerComponent* m_BossController{ nullptr };
 };
 
 class InDeadPlayerFormationState : public EnemyState

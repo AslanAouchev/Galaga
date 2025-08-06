@@ -4,6 +4,7 @@
 #include <SDLSoundSystem.h>
 #include "SceneManager.h"
 #include "BaseAIController.h"
+#include "../Galaga/BossAIControllerComponent.h"
 
 extern void loadMainMenu();
 
@@ -284,7 +285,7 @@ public:
 
     virtual void Execute() override
     {
-		GetGameObject()->GetComponent<BaseAIController>()->Shoot();
+		GetGameObject()->GetComponent<BossAIControllerComponent>()->ShootFighter();
     }
 
     virtual void Execute(float) override
@@ -302,6 +303,23 @@ public:
     virtual void Execute() override
     {
         GetGameObject()->GetComponent<BaseAIController>()->SetAttack(true);
+    }
+
+    virtual void Execute(float) override
+    {
+
+    }
+};
+
+class BeamAICOmmand : public GameObjectCommand
+{
+public:
+
+    BeamAICOmmand(dae::GameObject* gameObject) : GameObjectCommand(gameObject) {}
+
+    virtual void Execute() override
+    {
+        GetGameObject()->GetComponent<BossAIControllerComponent>()->StartTractorBeam();
     }
 
     virtual void Execute(float) override

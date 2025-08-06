@@ -36,10 +36,8 @@ public:
     void SetSpeed(float speed) { m_Speed = speed; }
     void SetDiveCooldown(float cooldown) { m_DiveCooldown = cooldown; }
 
-    void SetAttack(bool SetAttack)
-    {
-        m_CanAttack = SetAttack;
-    }
+    virtual void SetAttack(bool SetAttack);
+	bool CanAttack() const { return m_CanAttack; }
 
     void UpdateTargetPlayer();
     float GetDistanceToPlayer(dae::GameObject* player) const;
@@ -52,6 +50,11 @@ public:
 
     bool OnShouldDive();
 
+    void UpdatePlayersFromScene();
+
+protected:
+    bool m_Paused{ false };
+
 private:
     std::unique_ptr<EnemyState> m_CurrentState{nullptr};
     dae::GameObject* m_Owner{nullptr};
@@ -62,6 +65,7 @@ private:
     float m_DiveCooldown{ 5.0f };
     float m_TargetUpdateTimer{};
     float m_TargetUpdateInterval{ 1.f };
-    bool m_Paused{ false };
+    float m_ExistenceTimer{};
     bool m_CanAttack{};
+    bool m_HasFoundPlayers{};
 };

@@ -1,6 +1,9 @@
 #include "BaseAIController.h"
 #include "EnemyStates.h"
 #include "GameObject.h"
+#include "Scene.h"
+#include "SceneManager.h"
+#include <PlayerComponent.h>
 
 BaseAIController::BaseAIController(dae::GameObject* owner)
     : m_Owner(owner)
@@ -25,6 +28,17 @@ void BaseAIController::Update(float deltaTime)
     if (newState)
     {
         SetState(std::move(newState));
+    }
+
+    if (m_ExistenceTimer < 1.0f)
+    {
+        m_ExistenceTimer += deltaTime;
+    }
+
+    if (!m_HasFoundPlayers && m_ExistenceTimer >= 1.0f)
+    {
+        UpdatePlayersFromScene();
+        m_HasFoundPlayers = true;
     }
 }
 
@@ -112,6 +126,11 @@ void BaseAIController::RemovePlayer(dae::GameObject* player)
     }
 }
 
+void BaseAIController::SetAttack(bool SetAttack)
+{
+    m_CanAttack = SetAttack;
+}
+
 void BaseAIController::UpdateTargetPlayer()
 {
     m_Players.erase(
@@ -193,4 +212,26 @@ dae::GameObject* BaseAIController::GetClosestPlayerInRange(float range) const
 bool BaseAIController::OnShouldDive()
 {
     return m_CanAttack;
+}
+
+void BaseAIController::UpdatePlayersFromScene()
+{
+    auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
+    auto& allGameObjects = scene.GetAllGameObjects();
+
+    std::vector<dae::GameObject*> foundPlayers;
+
+    for (auto& gameObject : allGameObjects)
+    {
+        if (gameObject && !gameObject->IsMarkedForDestruction())
+        {
+            auto playerComponent = gameObject->GetComponent<dae::PlayerComponent>();
+            if (playerComponent && playerComponent->GetTag() == dae::GameObjectTag::Player)
+            {
+                foundPlayers.push_back(gameObject.get());
+            }
+        }
+    }
+
+    SetPlayers(foundPlayers);
 }

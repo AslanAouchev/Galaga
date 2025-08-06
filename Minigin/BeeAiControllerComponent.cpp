@@ -1,8 +1,6 @@
 #include "BeeAiControllerComponent.h"
 #include "GameObject.h"
 #include <cmath>
-#include "Scene.h"
-#include "SceneManager.h"
 #include <PlayerComponent.h>
 #include <EnemyStates.h>
 #include <random>
@@ -24,48 +22,11 @@ BeeAiControllerComponent::BeeAiControllerComponent(dae::GameObject* owner)
 
 BeeAiControllerComponent::~BeeAiControllerComponent()
 {
-    if (GetOwner()->GetParent())
-    {
-        GetOwner()->GetParent()->RemoveObserver(this);
-    }
 }
 
 void BeeAiControllerComponent::Update(const float deltaTime)
 {
 	BaseAIController::Update(deltaTime);
-
-    if(m_ExistenceTimer < 1.0f)
-    {
-        m_ExistenceTimer += deltaTime;
-    }
-
-    if (!m_HasFoundPlayers && m_ExistenceTimer >= 1.0f)
-    {
-        UpdatePlayersFromScene();
-        m_HasFoundPlayers = true;
-    }
-}
-
-void BeeAiControllerComponent::UpdatePlayersFromScene()
-{
-    auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
-    auto& allGameObjects = scene.GetAllGameObjects();
-
-    std::vector<dae::GameObject*> foundPlayers;
-
-    for (auto& gameObject : allGameObjects)
-    {
-        if (gameObject && !gameObject->IsMarkedForDestruction())
-        {
-            auto playerComponent = gameObject->GetComponent<dae::PlayerComponent>();
-            if (playerComponent && playerComponent->GetTag() == dae::GameObjectTag::Player)
-            {
-                foundPlayers.push_back(gameObject.get());
-            }
-        }
-    }
-
-    SetPlayers(foundPlayers);
 }
 
 void BeeAiControllerComponent::OnUpdateFormationBehavior(float deltaTime)

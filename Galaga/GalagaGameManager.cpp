@@ -14,6 +14,8 @@
 #include "InputCommands.h"
 #include "InputManager.h"
 #include <SDL_gamecontroller.h>
+#include "BossAIControllerComponent.h"
+#include "ButterflyAIControllerComponent.h"
 
 GalagaGameManager::GalagaGameManager(dae::GameObject* pOwner) : dae::Component(pOwner)
 {
@@ -394,18 +396,18 @@ void GalagaGameManager::SetupLevelParameters()
         switch (m_CurrentLevel)
         {
         case 1:
-            m_TotalEnemies = 12;
-            m_EnemySpawnDelay = 1.0f;
+            m_TotalEnemies = 32;
+            m_EnemySpawnDelay = 0.5f;
             m_EnemyAttackInterval = 3.0f;
             break;
         case 2:
-            m_TotalEnemies = 16;
-            m_EnemySpawnDelay = 0.8f;
+            m_TotalEnemies = 40;
+            m_EnemySpawnDelay = 0.4f;
             m_EnemyAttackInterval = 2.5f;
             break;
         case 3:
-            m_TotalEnemies = 18;
-            m_EnemySpawnDelay = 0.6f;
+            m_TotalEnemies = 48;
+            m_EnemySpawnDelay = 0.3f;
             m_EnemyAttackInterval = 2.0f;
             break;
         default:
@@ -434,50 +436,83 @@ void GalagaGameManager::SpawnNextEnemy()
     {
         if (m_EnemiesSpawned == 0)
         {
-            enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+            enemy->AddComponent<BossAIControllerComponent>(enemy.get());
             auto& input = dae::InputManager::GetInstance();
-			input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ShootAICOmmand>(enemy.get()), 1);
+            input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ShootAICOmmand>(enemy.get()), 1);
             input.BindCommand(SDL_CONTROLLER_BUTTON_B, std::make_unique<DiveAICOmmand>(enemy.get()), 1);
+            input.BindCommand(SDL_CONTROLLER_BUTTON_X, std::make_unique<BeamAICOmmand>(enemy.get()), 1);
+            input.BindCommand(SDL_SCANCODE_X, std::make_unique<ShootAICOmmand>(enemy.get()));
+            input.BindCommand(SDL_SCANCODE_C, std::make_unique<DiveAICOmmand>(enemy.get()));
+            input.BindCommand(SDL_SCANCODE_V, std::make_unique<BeamAICOmmand>(enemy.get()));
         }
-		else if (m_EnemiesSpawned < 6)
-		{
-			enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
-		}
-		else if (m_EnemiesSpawned < 10)
-		{
-			//enemyType = dae::GameObjectTag::Butterfly;
-		}
+        else if (m_EnemiesSpawned < 6)
+        {
+            enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+        }
+        else if (m_EnemiesSpawned < 10)
+        {
+            enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+        }
     }
     else
     {
         if (m_CurrentLevel == 1)
         {
-            enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
-        }
-        else if (m_CurrentLevel == 2)
-        {
-            if (m_EnemiesSpawned < 10)
+            if (row >= 4)
             {
                 enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
             }
+            else if (row >= 2)
+            {
+                enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+            }
             else
             {
-                //enemyType = dae::GameObjectTag::Butterfly;
+                enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+            }
+        }
+        else if (m_CurrentLevel == 2)
+        {
+            if (row >= 4)
+            {
+                enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+            }
+            else if (row >= 2)
+            {
+                enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+            }
+            else
+            {
+                if (m_EnemiesSpawned < 8)
+                {
+                    enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+                }
+                else
+                {
+                    if ((col % 2) == 0)
+                    {
+                        enemy->AddComponent<BossAIControllerComponent>(enemy.get());
+                    }
+                    else
+                    {
+                        enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+                    }
+                }
             }
         }
         else if (m_CurrentLevel == 3)
         {
-            if (m_EnemiesSpawned < 10)
+            if (row >= 4)
             {
                 enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
             }
-            else if (m_EnemiesSpawned < 16)
+            else if (row >= 2)
             {
-                //enemyType = dae::GameObjectTag::Butterfly;
+                enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
             }
             else
             {
-                //enemyType = dae::GameObjectTag::Boss;
+                enemy->AddComponent<BossAIControllerComponent>(enemy.get());
             }
         }
     }
@@ -536,7 +571,14 @@ void GalagaGameManager::TriggerRandomEnemyAttack()
             auto aiController = availableEnemies[i]->GetComponent<BaseAIController>();
             if (aiController)
             {
-                aiController->SetAttack(true);
+                if (auto * bossAiController{ dynamic_cast<BossAIControllerComponent*>(aiController) })
+                {
+                    bossAiController->SetAttack(true);
+                }
+                else
+                {
+                    aiController->SetAttack(true);
+                }
             }
         }
     }
