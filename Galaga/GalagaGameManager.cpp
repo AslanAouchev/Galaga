@@ -423,15 +423,12 @@ void GalagaGameManager::SetupLevelParameters()
         {
         case 1:
             m_TotalEnemies = 9;
-            m_EnemySpawnDelay = 2.f;
             break;
         case 2:
             m_TotalEnemies = 9;
-            m_EnemySpawnDelay = 2.f;
             break;
         case 3:
             m_TotalEnemies = 9;
-            m_EnemySpawnDelay = 2.f;
             break;
         default:
             break;
@@ -443,17 +440,14 @@ void GalagaGameManager::SetupLevelParameters()
         {
         case 1:
             m_TotalEnemies = 32;
-            m_EnemySpawnDelay = 2.f;
             m_EnemyAttackInterval = 3.0f;
             break;
         case 2:
             m_TotalEnemies = 40;
-            m_EnemySpawnDelay = 2.f;
             m_EnemyAttackInterval = 2.5f;
             break;
         case 3:
             m_TotalEnemies = 48;
-            m_EnemySpawnDelay = 2.f;
             m_EnemyAttackInterval = 2.0f;
             break;
         default:
@@ -651,7 +645,7 @@ void GalagaGameManager::SpawnNextEnemy()
 
     enemy->GetComponent<BaseAIController>()->SetFormationPosition(glm::vec3(formationX, formationY, 0.f));
 
-    if (auto baseAI = enemy->GetComponent<BaseAIController>())
+    if (auto baseAI{ enemy->GetComponent<BaseAIController>() })
     {
         baseAI->SetEntrancePath(entrancePath);
     }

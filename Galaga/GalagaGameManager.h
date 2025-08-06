@@ -51,7 +51,7 @@ private:
     bool m_LivesInitialized{};
 
     float m_EnemySpawnTimer{  };
-    float m_EnemySpawnDelay{ 1.0f };
+    float m_EnemySpawnDelay{ 2.0f };
     int m_EnemiesSpawned{};
 
     float m_EnemyAttackTimer{};
