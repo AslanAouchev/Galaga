@@ -163,7 +163,6 @@
     <ClCompile Include="BulletComponent.cpp" />
     <ClCompile Include="BossAIControllerComponent.cpp" />
     <ClCompile Include="ButterflyAIControllerComponent.cpp" />
-    <ClCompile Include="ButterflyAIControllerComponent.h" />
     <ClCompile Include="EnemyPlayerAIComponent.cpp" />
     <ClCompile Include="Galaga.cpp" />
     <ClCompile Include="GalagaGameManager.cpp" />
@@ -181,6 +180,7 @@
     <ClInclude Include="..\Minigin\PlayerComponent.h" />
     <ClInclude Include="BulletComponent.h" />
     <ClInclude Include="BossAIControllerComponent.h" />
+    <ClInclude Include="ButterflyAIControllerComponent.h" />
     <ClInclude Include="EnemyPlayerAIComponent.h" />
     <ClInclude Include="GalagaGameManager.h" />
     <ClInclude Include="LifeIconComponent.h" />

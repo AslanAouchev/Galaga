@@ -124,10 +124,7 @@ public:
         {
             if (auto playerComp{ GetGameObject()->GetComponent<dae::PlayerComponent>() })
             {
-                if(playerComp->Fire())
-                {
-                    ServiceLocator::getSoundSystem().play(13, 0.8f);
-                }
+                playerComp->Fire();
             }
         }
     }

@@ -92,16 +92,16 @@ void loadMainMenu()
 
 	auto& soundSystem = ServiceLocator::getSoundSystem();
 
-	soundSystem.registerSound(0, "../Data/Bonus_Stage.wav");
-	soundSystem.registerSound(1, "../Data/Bonus_Stage_Perfect.wav");
-	soundSystem.registerSound(2, "../Data/Bonus_Stage_Result.wav");
-	soundSystem.registerSound(3, "../Data/Captured_Fighter_Destroyed.wav");
-	soundSystem.registerSound(4, "../Data/Coin_Insert.wav");
-	soundSystem.registerSound(5, "../Data/Enemy_Hit.wav");
-	soundSystem.registerSound(6, "../Data/High_Score.wav");
-	soundSystem.registerSound(7, "../Data/High_Score_5thplace.wav");
-	soundSystem.registerSound(8, "../Data/Last_Ship_Destroyed.wav");
-	soundSystem.registerSound(9, "../Data/Level_Flag.wav");
+	soundSystem.registerSound(0,  "../Data/Bonus_Stage.wav");
+	soundSystem.registerSound(1,  "../Data/Bonus_Stage_Perfect.wav");
+	soundSystem.registerSound(2,  "../Data/Bonus_Stage_Result.wav");
+	soundSystem.registerSound(3,  "../Data/Captured_Fighter_Destroyed.wav");
+	soundSystem.registerSound(4,  "../Data/Coin_Insert.wav");
+	soundSystem.registerSound(5,  "../Data/Enemy_Hit.wav");
+	soundSystem.registerSound(6,  "../Data/High_Score.wav");
+	soundSystem.registerSound(7,  "../Data/High_Score_5thplace.wav");
+	soundSystem.registerSound(8,  "../Data/Last_Ship_Destroyed.wav");
+	soundSystem.registerSound(9,  "../Data/Level_Flag.wav");
 	soundSystem.registerSound(10, "../Data/Life_Up.wav");
 	soundSystem.registerSound(11, "../Data/Opening_Theme.wav");
 	soundSystem.registerSound(12, "../Data/Ship_Captured_Rescued.wav");

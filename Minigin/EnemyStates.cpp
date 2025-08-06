@@ -4,6 +4,7 @@
 #include <PlayerComponent.h>
 #include <BeeAiControllerComponent.h>
 #include "../Galaga/BossAIControllerComponent.h"
+#include "../Galaga/ButterflyAIControllerComponent.h"
 
 std::unique_ptr<EnemyState> EnemyState::CreateFormationState()
 {
@@ -55,6 +56,10 @@ void FormationState::Enter(BaseAIController* controller)
         {
             playerComp->SetScore(150);
         }
+        else if (controller->GetOwnerAI()->GetComponent<ButterflyAIControllerComponent>())
+        {
+            playerComp->SetScore(80);
+        }
     }
 
     controller->SetAttack(false);
@@ -88,6 +93,10 @@ void InFormationState::Enter(BaseAIController* controller)
         else if (controller->GetOwnerAI()->GetComponent<BossAIControllerComponent>())
         {
             playerComp->SetScore(150);
+        }
+        else if (controller->GetOwnerAI()->GetComponent<ButterflyAIControllerComponent>())
+        {
+            playerComp->SetScore(80);
         }
     }
 
@@ -196,10 +205,17 @@ void DivingState::Enter(BaseAIController* controller)
         if (m_IsBoss)
         {
             playerComp->SetScore(400);
+			m_ShootInterval = 1.0f;
         }
         else if (controller->GetOwnerAI()->GetComponent<BeeAiControllerComponent>())
         {
             playerComp->SetScore(100);
+            m_ShootInterval = 1.25f;
+        }
+        else if (controller->GetOwnerAI()->GetComponent<ButterflyAIControllerComponent>())
+        {
+            playerComp->SetScore(160);
+            m_ShootInterval = 0.75f;
         }
     }
 
@@ -240,6 +256,10 @@ void InDeadPlayerFormationState::Enter(BaseAIController* controller)
         else if (controller->GetOwnerAI()->GetComponent<BossAIControllerComponent>())
         {
             playerComp->SetScore(150);
+        }
+        else if (controller->GetOwnerAI()->GetComponent<ButterflyAIControllerComponent>())
+        {
+            playerComp->SetScore(80);
         }
     }
 }

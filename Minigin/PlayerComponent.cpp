@@ -50,7 +50,6 @@ void dae::PlayerComponent::TakeDamage(int amount)
     }
 
     m_Health -= amount;
-    ServiceLocator::getSoundSystem().play(5, 0.8f);
 
     if (m_Tag == GameObjectTag::Player)
     {
@@ -60,18 +59,28 @@ void dae::PlayerComponent::TakeDamage(int amount)
     if (m_Tag == GameObjectTag::Boss)
     {
         m_pTexture->SetTexture("BossHit.png");
+        ServiceLocator::getSoundSystem().play(5, 0.8f);
     }
 
     if (m_Health <= 0)
     {
         m_IsDead = true;
     
-        if (m_Tag != GameObjectTag::Player)
+        if (m_Tag != GameObjectTag::Player && m_Tag != GameObjectTag::EnemyPlayer)
         {
 			GetOwner()->SetActive(false);
             GetOwner()->TriggerEvent("EnemyKilled", m_ScoreValue);
+            ServiceLocator::getSoundSystem().play(5, 0.8f);
             return;
         }
+
+		if (m_Tag == GameObjectTag::EnemyPlayer)
+		{
+			GetOwner()->SetActive(false);
+			GetOwner()->TriggerEvent("EnemyPlayerKilled", m_ScoreValue);
+            ServiceLocator::getSoundSystem().play(3, 0.8f);
+			return;
+		}
     }
 }
 
@@ -84,6 +93,8 @@ bool dae::PlayerComponent::Fire(bool ShootUp)
 
     if (m_FireCooldown <= 0.0f)
     {
+        ServiceLocator::getSoundSystem().play(13, 0.8f);
+
         if (m_Tag == GameObjectTag::Player)
         {
             GetOwner()->TriggerEvent("Shot");

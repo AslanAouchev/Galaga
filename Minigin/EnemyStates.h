@@ -47,7 +47,7 @@ private:
     size_t m_CurrentPathPoint{};
     bool m_PathGenerated{};
     float m_ShootTimer{};
-    float m_ShootInterval{ 0.5f };
+    float m_ShootInterval{ 1.5f };
 
     bool m_IsBoss{ false };
     bool m_TractorBeamUsed{};

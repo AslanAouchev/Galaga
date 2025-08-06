@@ -75,9 +75,6 @@
     <ClCompile Include="EnemyPlayerAIComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="ButterflyAIControllerComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="ButterflyAIControllerComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
@@ -120,6 +117,9 @@
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="EnemyPlayerAIComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ButterflyAIControllerComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>

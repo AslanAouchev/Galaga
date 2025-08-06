@@ -134,16 +134,18 @@ void BossAIControllerComponent::UpdateTractorBeam(float deltaTime)
 
         if (!m_DoOnce)
         {
+            m_DoOnce = true;
+
             auto tractorBeapObject{ std::make_unique<dae::GameObject>() };
 
             tractorBeapObject->AddComponent<TractorBeamComponent>(tractorBeapObject.get(), this);
             tractorBeapObject->SetPosition(GetOwner()->GetTransform().GetPosition().x - 30.f,
                 GetOwner()->GetTransform().GetPosition().y + 35.f);
 
-            m_DoOnce = true;
-
             auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
             scene.Add(std::move(tractorBeapObject));
+
+            ServiceLocator::getSoundSystem().play(14, 0.8f);
         }
 
         if (m_TractorBeamTimer <= 0.0f)
@@ -168,13 +170,28 @@ void BossAIControllerComponent::UpdateTractorBeam(float deltaTime)
 
 void BossAIControllerComponent::OnUpdateFormationBehavior(float deltaTime)
 {
-    m_formationWobble += deltaTime * 0.6f;
-    const float wobbleOffset{ std::sin(m_formationWobble) * 25.0f };
+    bool hasFighter = (m_EnemyPlayerComponent != nullptr);
 
-    glm::vec3 wobblePos{ GetFormationPosition() };
-    wobblePos.x += wobbleOffset;
+    if (hasFighter)
+    {
+        m_formationWobble += deltaTime * 2.5f;
+        const float wobbleOffset{ std::sin(m_formationWobble) * 70.0f };
 
-    MoveTowards(wobblePos, 12.0f, deltaTime);
+        glm::vec3 wobblePos{ GetFormationPosition() };
+        wobblePos.x += wobbleOffset;
+
+        MoveTowards(wobblePos, 15.0f, deltaTime);
+    }
+    else
+    {
+        m_formationWobble += deltaTime * 0.6f;
+        const float wobbleOffset{ std::sin(m_formationWobble) * 25.0f };
+
+        glm::vec3 wobblePos{ GetFormationPosition() };
+        wobblePos.x += wobbleOffset;
+
+        MoveTowards(wobblePos, 12.0f, deltaTime);
+    }
 }
 
 void BossAIControllerComponent::OnGenerateDivePath(std::vector<glm::vec3>& path)
