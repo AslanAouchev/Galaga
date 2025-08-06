@@ -15,6 +15,7 @@
 #include "InputManager.h"
 #include <SDL_gamecontroller.h>
 #include "BossAIControllerComponent.h"
+#include "ButterflyAIControllerComponent.h"
 
 GalagaGameManager::GalagaGameManager(dae::GameObject* pOwner) : dae::Component(pOwner)
 {
@@ -169,21 +170,52 @@ void GalagaGameManager::EndGameWin()
 void GalagaGameManager::EndGameLose()
 {
     GetOwner()->TriggerEvent("GameOver");
-
     auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
-    auto gameOverObject = std::make_unique<dae::GameObject>();
-    gameOverObject->SetPosition(250, 240);
 
+    auto gameOverObject = std::make_unique<dae::GameObject>();
+    gameOverObject->SetPosition(250, 180);
     auto gameOverFont = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 48);
     gameOverObject->AddComponent<dae::TextComponent>("GAME OVER", gameOverFont, gameOverObject.get());
-
     scene.Add(std::move(gameOverObject));
 
+    const int missedShots{ m_ShotAmount - m_EnemiesKilled };
+    float accuracy{};
+    if (m_ShotAmount > 0)
+    {
+        accuracy = (static_cast<float>(m_EnemiesKilled) / static_cast<float>(m_ShotAmount)) * 100.0f;
+    }
+
+    auto statsFont = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 24);
+
+    auto shotsObject = std::make_unique<dae::GameObject>();
+    shotsObject->SetPosition(200, 250);
+    shotsObject->AddComponent<dae::TextComponent>("SHOTS FIRED: " + std::to_string(m_ShotAmount), statsFont, shotsObject.get());
+    scene.Add(std::move(shotsObject));
+
+    auto hitsObject = std::make_unique<dae::GameObject>();
+    hitsObject->SetPosition(200, 280);
+    hitsObject->AddComponent<dae::TextComponent>("HITS: " + std::to_string(m_EnemiesKilled), statsFont, hitsObject.get());
+    scene.Add(std::move(hitsObject));
+
+    auto missesObject = std::make_unique<dae::GameObject>();
+    missesObject->SetPosition(200, 310);
+    missesObject->AddComponent<dae::TextComponent>("MISSES: " + std::to_string(missedShots), statsFont, missesObject.get());
+    scene.Add(std::move(missesObject));
+
+    auto accuracyObject = std::make_unique<dae::GameObject>();
+    accuracyObject->SetPosition(200, 340);
+    std::string accuracyText = "ACCURACY: " + std::to_string(static_cast<int>(accuracy)) + "%";
+    accuracyObject->AddComponent<dae::TextComponent>(accuracyText, statsFont, accuracyObject.get());
+    scene.Add(std::move(accuracyObject));
+
+    auto scoreObject = std::make_unique<dae::GameObject>();
+    scoreObject->SetPosition(200, 380);
+    scoreObject->AddComponent<dae::TextComponent>("FINAL SCORE: " + std::to_string(m_Score), statsFont, scoreObject.get());
+    scene.Add(std::move(scoreObject));
+
     m_ShowingGameOver = true;
-    m_GameOverTimer = m_GameOverDuration;
 
     ServiceLocator::getSoundSystem().stopAllSounds();
-
     ServiceLocator::getSoundSystem().play(8, 0.8f);
 }
 
@@ -242,6 +274,8 @@ void GalagaGameManager::Update(float deltaTime)
         return;
     }
 
+    UpdatePlayerCount();
+
     if (m_DoOnce == 0)
     {
         ++m_DoOnce;
@@ -250,7 +284,7 @@ void GalagaGameManager::Update(float deltaTime)
         StartLevel(m_CurrentLevel);
     }
 
-    UpdatePlayerCount();
+    GetOwner()->TriggerEvent("SetLives", m_Lives - 1);
 
     UpdateLevelLogic(deltaTime);
 
@@ -277,12 +311,11 @@ void GalagaGameManager::SetPvPMode()
 
 void GalagaGameManager::UpdatePlayerCount()
 {
-    static int previousObserverCount = 0;
     int currentObserverCount{ GetOwner()->GetObserverCount() };
 
-    if (currentObserverCount > previousObserverCount)
+    if (currentObserverCount > m_PreviousObserverCount)
     {
-        previousObserverCount = currentObserverCount;
+        m_PreviousObserverCount = currentObserverCount;
         auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
         auto& allGameObjects = scene.GetAllGameObjects();
 
@@ -302,16 +335,20 @@ void GalagaGameManager::UpdatePlayerCount()
 
         m_PlayerCount = playerCount;
 
-        if (m_PlayerCount == 1)
+        if (!m_LivesInitialized)
         {
-            m_Lives = 4;
-        }
-        else if (m_PlayerCount == 2)
-        {
-            m_Lives = 5;
-        }
+            if (m_PlayerCount == 1)
+            {
+                m_Lives = 4;
+            }
+            else if (m_PlayerCount == 2)
+            {
+                m_Lives = 5;
+            }
 
-        GetOwner()->TriggerEvent("SetLives", m_Lives - 1);
+            GetOwner()->TriggerEvent("SetLives", m_Lives - 1);
+            m_LivesInitialized = true;
+        }
     }
 }
 
@@ -375,15 +412,15 @@ void GalagaGameManager::SetupLevelParameters()
         switch (m_CurrentLevel)
         {
         case 1:
-            m_TotalEnemies = 6;
+            m_TotalEnemies = 9;
             m_EnemySpawnDelay = 1.2f;
             break;
         case 2:
-            m_TotalEnemies = 8;
+            m_TotalEnemies = 9;
             m_EnemySpawnDelay = 1.0f;
             break;
         case 3:
-            m_TotalEnemies = 10;
+            m_TotalEnemies = 9;
             m_EnemySpawnDelay = 0.8f;
             break;
         default:
@@ -395,18 +432,18 @@ void GalagaGameManager::SetupLevelParameters()
         switch (m_CurrentLevel)
         {
         case 1:
-            m_TotalEnemies = 12;
-            m_EnemySpawnDelay = 1.0f;
+            m_TotalEnemies = 32;
+            m_EnemySpawnDelay = 0.5f;
             m_EnemyAttackInterval = 3.0f;
             break;
         case 2:
-            m_TotalEnemies = 16;
-            m_EnemySpawnDelay = 0.8f;
+            m_TotalEnemies = 40;
+            m_EnemySpawnDelay = 0.4f;
             m_EnemyAttackInterval = 2.5f;
             break;
         case 3:
-            m_TotalEnemies = 18;
-            m_EnemySpawnDelay = 0.6f;
+            m_TotalEnemies = 48;
+            m_EnemySpawnDelay = 0.3f;
             m_EnemyAttackInterval = 2.0f;
             break;
         default:
@@ -437,54 +474,124 @@ void GalagaGameManager::SpawnNextEnemy()
         {
             enemy->AddComponent<BossAIControllerComponent>(enemy.get());
             auto& input = dae::InputManager::GetInstance();
-			input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ShootAICOmmand>(enemy.get()), 1);
+            input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ShootAICOmmand>(enemy.get()), 1);
             input.BindCommand(SDL_CONTROLLER_BUTTON_B, std::make_unique<DiveAICOmmand>(enemy.get()), 1);
             input.BindCommand(SDL_CONTROLLER_BUTTON_X, std::make_unique<BeamAICOmmand>(enemy.get()), 1);
             input.BindCommand(SDL_SCANCODE_X, std::make_unique<ShootAICOmmand>(enemy.get()));
             input.BindCommand(SDL_SCANCODE_C, std::make_unique<DiveAICOmmand>(enemy.get()));
             input.BindCommand(SDL_SCANCODE_V, std::make_unique<BeamAICOmmand>(enemy.get()));
+
+            enemy->GetComponent<BaseAIController>()->SetFormationPosition(glm::vec3(350.0f, 50.0f, 0.0f));
         }
-		else if (m_EnemiesSpawned < 6)
-		{
-			enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
-		}
-		else if (m_EnemiesSpawned < 10)
-		{
-			//enemyType = dae::GameObjectTag::Butterfly;
-		}
+        else
+        {
+            const int adjustedIndex{ m_EnemiesSpawned - 1 };
+            const int adjustedRow{ adjustedIndex / (columns - 2) + 1 };
+            const int adjustedCol{ (adjustedIndex % (columns - 2)) + 1 };
+
+            const float adjustedX{startX + (adjustedCol * 50.0f)};
+            const float adjustedY{startY + (adjustedRow * 40.0f)};
+
+            if (m_CurrentLevel == 1)
+            {
+                if (row >= 2)
+                {
+                    enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+                }
+                else
+                {
+                    enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+                }
+            }
+            else if (m_CurrentLevel == 2)
+            {
+                if (adjustedRow <= 1)
+                {
+                    enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+                }
+                else
+                {
+                    enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+                }
+            }
+            else if (m_CurrentLevel == 3)
+            {
+                if (adjustedRow <= 2)
+                {
+                    enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+                }
+                else
+                {
+                    enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+                }
+            }
+
+            enemy->GetComponent<BaseAIController>()->SetFormationPosition(glm::vec3(adjustedX, adjustedY, 0.0f));
+        }
     }
     else
     {
         if (m_CurrentLevel == 1)
         {
-            enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
-        }
-        else if (m_CurrentLevel == 2)
-        {
-            if (m_EnemiesSpawned < 10)
+            if (row >= 3)
             {
                 enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
             }
+            else if (row >= 2)
+            {
+                enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+            }
             else
             {
-                //enemyType = dae::GameObjectTag::Butterfly;
+                enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+            }
+        }
+        else if (m_CurrentLevel == 2)
+        {
+            if (row >= 4)
+            {
+                enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
+            }
+            else if (row >= 2)
+            {
+                enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+            }
+            else
+            {
+                if (m_EnemiesSpawned < 8)
+                {
+                    enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+                }
+                else
+                {
+                    if ((col % 2) == 0)
+                    {
+                        enemy->AddComponent<BossAIControllerComponent>(enemy.get());
+                    }
+                    else
+                    {
+                        enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
+                    }
+                }
             }
         }
         else if (m_CurrentLevel == 3)
         {
-            if (m_EnemiesSpawned < 10)
+            if (row >= 4)
             {
                 enemy->AddComponent<BeeAiControllerComponent>(enemy.get());
             }
-            else if (m_EnemiesSpawned < 16)
+            else if (row >= 2)
             {
-                //enemyType = dae::GameObjectTag::Butterfly;
+                enemy->AddComponent<ButterflyAIControllerComponent>(enemy.get());
             }
             else
             {
-                //enemyType = dae::GameObjectTag::Boss;
+                enemy->AddComponent<BossAIControllerComponent>(enemy.get());
             }
         }
+
+        enemy->GetComponent<BaseAIController>()->SetFormationPosition(glm::vec3(spawnX, spawnY, 0.f));
     }
 
     enemy->AddObserver(GetOwner()->GetComponent<Observer>());
@@ -508,47 +615,100 @@ void GalagaGameManager::TriggerRandomEnemyAttack()
     auto& allGameObjects = scene.GetAllGameObjects();
 
     std::vector<dae::GameObject*> availableEnemies;
+    std::vector<dae::GameObject*> availableBosses;
+    std::vector<dae::GameObject*> availableEscorts;
 
     for (const auto& gameObject : allGameObjects)
     {
-        if (gameObject)
+        if (gameObject && gameObject->IsActive() && !gameObject->IsMarkedForDestruction())
         {
             auto playerComponent{ gameObject->GetComponent<dae::PlayerComponent>() };
-            if (playerComponent)
+            auto aiController{ gameObject->GetComponent<BaseAIController>() };
+
+            if (playerComponent && aiController && !aiController->CanAttack())
             {
                 auto tag{ playerComponent->GetTag() };
-                if (tag == dae::GameObjectTag::Bee ||
-                    tag == dae::GameObjectTag::Butterfly ||
-                    (tag == dae::GameObjectTag::Boss && !m_pvpMode))
+                if (tag == dae::GameObjectTag::Boss && !m_pvpMode)
                 {
+                    availableBosses.push_back(gameObject.get());
+                    availableEnemies.push_back(gameObject.get());
+                }
+                else if (tag == dae::GameObjectTag::Bee || tag == dae::GameObjectTag::Butterfly)
+                {
+                    availableEscorts.push_back(gameObject.get());
                     availableEnemies.push_back(gameObject.get());
                 }
             }
         }
     }
 
-    if (!availableEnemies.empty())
+    if (availableEnemies.empty())
     {
-        int attackersCount{ std::min(m_CurrentLevel, static_cast<int>(availableEnemies.size())) };
-        attackersCount = std::max(1, attackersCount);
+        return;
+    }
 
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::shuffle(availableEnemies.begin(), availableEnemies.end(), gen);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::shuffle(availableEnemies.begin(), availableEnemies.end(), gen);
 
-        for (int i{}; i < attackersCount; ++i)
+    bool bossAttacking{};
+    BossAIControllerComponent* attackingBoss{ nullptr };
+
+    int attackersCount{ std::min(m_CurrentLevel, static_cast<int>(availableEnemies.size())) };
+    attackersCount = std::max(1, attackersCount);
+
+    for (auto* enemy : availableEnemies)
+    {
+        auto aiController{ enemy->GetComponent<BaseAIController>() };
+        if (aiController)
         {
-            auto aiController = availableEnemies[i]->GetComponent<BaseAIController>();
-            if (aiController)
+            if (auto * bossAiController{ dynamic_cast<BossAIControllerComponent*>(aiController) })
             {
-                if (auto * bossAiController{ dynamic_cast<BossAIControllerComponent*>(aiController) })
-                {
-                    bossAiController->SetAttack(true);
-                }
-                else
-                {
-                    aiController->SetAttack(true);
-                }
+                bossAttacking = true;
+                attackingBoss = bossAiController;
+                bossAiController->SetAttack(true);
+                break;
+            }
+        }
+    }
+
+    if (bossAttacking && attackingBoss && !attackingBoss->IsTractorBeamActive())
+    {
+        availableEscorts.erase(
+            std::remove_if(availableEscorts.begin(), availableEscorts.end(),
+                [](dae::GameObject* escort) {
+                    return !escort || !escort->IsActive() || escort->IsMarkedForDestruction() ||
+                        !escort->GetComponent<BaseAIController>() ||
+                        escort->GetComponent<BaseAIController>()->CanAttack();
+                }),
+            availableEscorts.end());
+
+        std::shuffle(availableEscorts.begin(), availableEscorts.end(), gen);
+
+        int escortCount{ std::min(m_CurrentLevel, static_cast<int>(availableEscorts.size())) };
+        escortCount = std::min(escortCount, 3);
+
+        int successfulEscorts{};
+        for (int i{}; i < availableEscorts.size() && successfulEscorts < escortCount; ++i)
+        {
+            auto escortAI{ availableEscorts[i]->GetComponent<BaseAIController>() };
+            if (escortAI && !escortAI->CanAttack())
+            {
+                escortAI->SetAttack(true);
+                successfulEscorts++;
+            }
+        }
+    }
+    else if (!bossAttacking)
+    {
+        int successfulAttackers{};
+        for (int i{}; i < availableEnemies.size() && successfulAttackers < attackersCount; ++i)
+        {
+            auto aiController{ availableEnemies[i]->GetComponent<BaseAIController>() };
+            if (aiController && !aiController->CanAttack())
+            {
+                aiController->SetAttack(true);
+                successfulAttackers++;
             }
         }
     }

@@ -205,19 +205,25 @@ void BossAIControllerComponent::OnGenerateDivePath(std::vector<glm::vec3>& path)
         targetPlayer = GetClosestPlayer();
     }
 
-    if (m_IsTractorBeamRun && targetPlayer)
+    if (m_TractorBeamActive && targetPlayer)
     {
         const auto playerPos{ targetPlayer->GetTransform().GetPosition() };
 
-        path.push_back({ currentPos.x - 80.0f, currentPos.y + 20.0f, 0 });
-        path.push_back({ currentPos.x - 100.0f, currentPos.y, 0 });
         path.push_back({ currentPos.x - 80.0f, currentPos.y - 20.0f, 0 });
-        path.push_back({ currentPos.x, currentPos.y - 20.0f, 0 });
-        path.push_back({ currentPos.x + 80.0f, currentPos.y - 20.0f, 0 });
-        path.push_back({ currentPos.x + 100.0f, currentPos.y, 0 });
-        path.push_back({ currentPos.x + 80.0f, currentPos.y + 20.0f, 0 });
-        path.push_back({ currentPos.x, currentPos.y, 0 });
 
+        path.push_back({ currentPos.x - 120.0f, currentPos.y - 40.0f, 0 }); 
+        path.push_back({ currentPos.x - 140.0f, currentPos.y - 20.0f, 0 }); 
+        path.push_back({ currentPos.x - 140.0f, currentPos.y + 20.0f, 0 }); 
+        path.push_back({ currentPos.x - 100.0f, currentPos.y + 40.0f, 0 }); 
+        path.push_back({ currentPos.x - 40.0f, currentPos.y + 40.0f, 0 });  
+        path.push_back({ currentPos.x + 20.0f, currentPos.y + 20.0f, 0 });  
+        path.push_back({ currentPos.x + 40.0f, currentPos.y, 0 });          
+        path.push_back({ currentPos.x + 40.0f, currentPos.y - 20.0f, 0 });  
+        path.push_back({ currentPos.x + 20.0f, currentPos.y - 40.0f, 0 });  
+        path.push_back({ currentPos.x - 20.0f, currentPos.y - 40.0f, 0 });  
+        path.push_back({ currentPos.x - 60.0f, currentPos.y - 20.0f, 0 });  
+
+        path.push_back({ playerPos.x - 20.0f, currentPos.y + 60.0f, 0 });  
         path.push_back({ playerPos.x, 240.0f, 0 });
 
         path.push_back({ playerPos.x, 240.0f, 0 });

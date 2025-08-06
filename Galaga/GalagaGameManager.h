@@ -34,11 +34,12 @@ private:
     int m_PlayerCount{ 0 };
     int m_DoOnce{};
     int m_CurrentLevel{ 1 };
+    int m_PreviousObserverCount{};
 
     float m_BossDiveCooldown{ 0.0f };
     const float m_BossDiveCooldownDuration{ 3.0f };
 
-    float m_GameOverTimer{ 0.0f };
+    float m_GameOverTimer{ 8.f };
     const float m_GameOverDuration{ 2.0f };
 
     bool m_LevelStarted{ false };
@@ -47,6 +48,7 @@ private:
     bool m_IsPaused{ false };
     bool m_EnteringName{ false };
     bool m_ShowingGameOver{ false };
+    bool m_LivesInitialized{};
 
     float m_EnemySpawnTimer{  };
     float m_EnemySpawnDelay{ 1.0f };
