@@ -52,6 +52,8 @@ public:
 
     void UpdatePlayersFromScene();
 
+    void SetEntrancePath(const std::vector<glm::vec3>& path) { m_EntrancePath = path; }
+
 protected:
     bool m_Paused{ false };
 
@@ -59,6 +61,7 @@ private:
     std::unique_ptr<EnemyState> m_CurrentState{nullptr};
     dae::GameObject* m_Owner{nullptr};
     std::vector<dae::GameObject*> m_Players;
+    std::vector<glm::vec3> m_EntrancePath;
     dae::GameObject* m_TargetPlayer{nullptr};
     glm::vec3 m_FormationPosition{ 0, 0, 0 };
     float m_Speed{60.f};
@@ -68,4 +71,7 @@ private:
     float m_ExistenceTimer{};
     bool m_CanAttack{};
     bool m_HasFoundPlayers{};
+    bool m_IsInEntrance{ true };
+    int m_CurrentEntrancePoint{};
+
 };

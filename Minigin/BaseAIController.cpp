@@ -17,6 +17,26 @@ void BaseAIController::Update(float deltaTime)
 {
     if (m_Paused) return;
 
+    if (m_IsInEntrance && !m_EntrancePath.empty())
+    {
+        if (m_CurrentEntrancePoint < m_EntrancePath.size())
+        {
+            glm::vec3 target{ m_EntrancePath[m_CurrentEntrancePoint] };
+            MoveTowards(target, m_Speed * 1.5f, deltaTime);
+
+            if (GetDistanceToPosition(target) < 10.0f)
+            {
+                m_CurrentEntrancePoint++;
+
+                if (m_CurrentEntrancePoint >= m_EntrancePath.size())
+                {
+                    m_IsInEntrance = false;
+                }
+            }
+        }
+        return;
+    }
+
     m_TargetUpdateTimer += deltaTime;
     if (m_TargetUpdateTimer >= m_TargetUpdateInterval)
     {

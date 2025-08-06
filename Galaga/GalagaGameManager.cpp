@@ -363,11 +363,22 @@ void GalagaGameManager::UpdateLevelLogic(float deltaTime)
         return;
     }
 
-    m_EnemySpawnTimer += deltaTime;
-    if (m_EnemySpawnTimer >= m_EnemySpawnDelay)
+    const int currentTeam{ m_EnemiesSpawned / 4 };
+    const int nextTeamStartIndex{ currentTeam * 4 };
+
+    if (m_EnemiesSpawned == nextTeamStartIndex)
     {
-        SpawnNextEnemy();
-        m_EnemySpawnTimer = 0.0f;
+        m_EnemySpawnTimer += deltaTime;
+        if (m_EnemySpawnTimer >= m_EnemySpawnDelay)
+        {
+            const int enemiesToSpawn{ std::min(4, m_TotalEnemies - m_EnemiesSpawned) };
+
+            for (int i{}; i < enemiesToSpawn; ++i)
+            {
+                SpawnNextEnemy();
+            }
+            m_EnemySpawnTimer = 0.0f;
+        }
     }
 }
 
@@ -412,15 +423,15 @@ void GalagaGameManager::SetupLevelParameters()
         {
         case 1:
             m_TotalEnemies = 9;
-            m_EnemySpawnDelay = 1.2f;
+            m_EnemySpawnDelay = 2.f;
             break;
         case 2:
             m_TotalEnemies = 9;
-            m_EnemySpawnDelay = 1.0f;
+            m_EnemySpawnDelay = 2.f;
             break;
         case 3:
             m_TotalEnemies = 9;
-            m_EnemySpawnDelay = 0.8f;
+            m_EnemySpawnDelay = 2.f;
             break;
         default:
             break;
@@ -432,17 +443,17 @@ void GalagaGameManager::SetupLevelParameters()
         {
         case 1:
             m_TotalEnemies = 32;
-            m_EnemySpawnDelay = 0.5f;
+            m_EnemySpawnDelay = 2.f;
             m_EnemyAttackInterval = 3.0f;
             break;
         case 2:
             m_TotalEnemies = 40;
-            m_EnemySpawnDelay = 0.4f;
+            m_EnemySpawnDelay = 2.f;
             m_EnemyAttackInterval = 2.5f;
             break;
         case 3:
             m_TotalEnemies = 48;
-            m_EnemySpawnDelay = 0.3f;
+            m_EnemySpawnDelay = 2.f;
             m_EnemyAttackInterval = 2.0f;
             break;
         default:
@@ -462,10 +473,57 @@ void GalagaGameManager::SpawnNextEnemy()
     const int row{ m_EnemiesSpawned / columns };
     const int col{ m_EnemiesSpawned % columns };
 
-    const float spawnX{ startX + (col * 50.0f) };
-    const float spawnY{ startY + (row * 40.0f) };
+    const float formationX{ startX + (col * 50.0f) };
+    const float formationY{ startY + (row * 40.0f) };
 
     auto enemy = std::make_unique<dae::GameObject>();
+
+    glm::vec3 entrancePos;
+    std::vector<glm::vec3> entrancePath;
+
+    const int teamId{ m_EnemiesSpawned / 4 };
+    const int positionInTeam{ m_EnemiesSpawned % 4 };
+    const float screenWidth{ 640.f };
+
+    if (teamId % 3 == 0)
+    {
+        const float teamSpacing{ 60.0f };
+        const float teamStartX{ -150.0f - (positionInTeam * teamSpacing) };
+
+        entrancePos = { teamStartX, formationY - 120.0f, 0.0f };
+
+        entrancePath.push_back({ teamStartX + 100.0f, formationY - 100.0f, 0.0f });
+        entrancePath.push_back({ teamStartX + 200.0f, formationY - 60.0f, 0.0f });
+        entrancePath.push_back({ formationX - 40.0f, formationY - 30.0f, 0.0f });
+        entrancePath.push_back({ formationX, formationY, 0.0f });
+    }
+    else if (teamId % 3 == 1)
+    {
+        const float teamSpacing{ 60.0f };
+        const float teamStartX{ screenWidth + 150.0f + (positionInTeam * teamSpacing) };
+
+        entrancePos = { teamStartX, formationY - 120.0f, 0.0f };
+
+        entrancePath.push_back({ teamStartX - 100.0f, formationY - 100.0f, 0.0f });
+        entrancePath.push_back({ teamStartX - 200.0f, formationY - 60.0f, 0.0f });
+        entrancePath.push_back({ formationX + 40.0f, formationY - 30.0f, 0.0f });
+        entrancePath.push_back({ formationX, formationY, 0.0f });
+    }
+    else
+    {
+        const float teamSpacing{ 50.0f };
+        const float offsetX{ (positionInTeam % 2 == 0) ? -teamSpacing : teamSpacing };
+        const float offsetY{ (positionInTeam / 2) * 40.0f };
+
+        entrancePos = { formationX + offsetX, -80.0f - offsetY, 0.0f };
+
+        entrancePath.push_back({ formationX + (offsetX * 0.7f), 50.0f + offsetY, 0.0f });
+        entrancePath.push_back({ formationX + (offsetX * 0.4f), formationY - 80.0f, 0.0f });
+        entrancePath.push_back({ formationX + (offsetX * 0.2f), formationY - 40.0f, 0.0f });
+        entrancePath.push_back({ formationX, formationY, 0.0f });
+    }
+
+    enemy->SetPosition(entrancePos.x, entrancePos.y);
 
     if (m_pvpMode)
     {
@@ -589,14 +647,17 @@ void GalagaGameManager::SpawnNextEnemy()
                 enemy->AddComponent<BossAIControllerComponent>(enemy.get());
             }
         }
+    }
 
-        enemy->GetComponent<BaseAIController>()->SetFormationPosition(glm::vec3(spawnX, spawnY, 0.f));
+    enemy->GetComponent<BaseAIController>()->SetFormationPosition(glm::vec3(formationX, formationY, 0.f));
+
+    if (auto baseAI = enemy->GetComponent<BaseAIController>())
+    {
+        baseAI->SetEntrancePath(entrancePath);
     }
 
     enemy->AddObserver(GetOwner()->GetComponent<Observer>());
     GetOwner()->AddObserver(enemy->GetComponent<BaseAIController>());
-
-    enemy->GetComponent<BaseAIController>()->SetFormationPosition(glm::vec3(spawnX, spawnY, 0.f));
 
     scene.Add(std::move(enemy));
 
