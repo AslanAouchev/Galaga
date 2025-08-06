@@ -525,12 +525,17 @@ void GalagaGameManager::SpawnNextEnemy()
         {
             enemy->AddComponent<BossAIControllerComponent>(enemy.get());
             auto& input = dae::InputManager::GetInstance();
-            input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ShootAICOmmand>(enemy.get()), 1);
+            input.BindCommand(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, std::make_unique<ShootAICOmmand>(enemy.get()), 1);
             input.BindCommand(SDL_CONTROLLER_BUTTON_B, std::make_unique<DiveAICOmmand>(enemy.get()), 1);
             input.BindCommand(SDL_CONTROLLER_BUTTON_X, std::make_unique<BeamAICOmmand>(enemy.get()), 1);
             input.BindCommand(SDL_SCANCODE_X, std::make_unique<ShootAICOmmand>(enemy.get()));
             input.BindCommand(SDL_SCANCODE_C, std::make_unique<DiveAICOmmand>(enemy.get()));
             input.BindCommand(SDL_SCANCODE_V, std::make_unique<BeamAICOmmand>(enemy.get()));
+
+            input.BindCommand(SDL_CONTROLLER_BUTTON_START, std::make_unique<PauseCommand>(enemy.get()), 1);
+            input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(enemy.get()), 1);
+            input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(enemy.get()), 1);
+            input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(enemy.get()), 1);
 
             enemy->GetComponent<BaseAIController>()->SetFormationPosition(glm::vec3(350.0f, 50.0f, 0.0f));
         }

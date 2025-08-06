@@ -240,7 +240,7 @@ void loadTwoPlayer()
 	 
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, std::make_unique<MoveLeftCommand>(go.get()), 0);
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, std::make_unique<MoveRightCommand>(go.get()), 0);
-	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<FireCommand>(go.get()), 0);
+	input.BindCommand(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, std::make_unique<FireCommand>(go.get()), 0);
 
 	go->AddObserver(fo.get()->GetComponent<Observer>());
 	fo->AddObserver(go.get()->GetComponent<Observer>());
@@ -257,7 +257,7 @@ void loadTwoPlayer()
 
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, std::make_unique<MoveLeftCommand>(go2.get()), 1);
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, std::make_unique<MoveRightCommand>(go2.get()), 1);
-	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<FireCommand>(go2.get()), 1);
+	input.BindCommand(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, std::make_unique<FireCommand>(go2.get()), 1);
 
 	go2->AddObserver(fo.get()->GetComponent<Observer>());
 	fo->AddObserver(go2.get()->GetComponent<Observer>());
@@ -274,12 +274,12 @@ void loadTwoPlayer()
 	input.BindCommand(SDL_CONTROLLER_BUTTON_START, std::make_unique<PauseCommand>(fo.get()), 0);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(fo.get()), 0);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(fo.get()), 0);
-	input.BindCommand(SDL_CONTROLLER_BUTTON_B, std::make_unique<ConfirmUiCommand>(fo.get()), 0);
+	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(fo.get()), 0);
 
 	input.BindCommand(SDL_CONTROLLER_BUTTON_START, std::make_unique<PauseCommand>(fo.get()), 1);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(fo.get()), 1);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(fo.get()), 1);
-	input.BindCommand(SDL_CONTROLLER_BUTTON_B, std::make_unique<ConfirmUiCommand>(fo.get()), 1);
+	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(fo.get()), 1);
 
 	input.BindCommand(SDL_SCANCODE_F2, std::make_unique<MuteCommand>(fo.get()));
 	input.BindCommand(SDL_SCANCODE_F1, std::make_unique<SkipLevelCommand>(fo.get()));
