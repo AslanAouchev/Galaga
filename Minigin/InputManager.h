@@ -21,6 +21,8 @@ namespace dae
 		void BindContinuousCommand(SDL_Scancode key, std::unique_ptr<Command> command);
 		void BindContinuousCommand(Uint8 controllerButton, std::unique_ptr<Command> command, int controllerIndex);
 
+		void BindContinuousAxisCommand(SDL_GameControllerAxis axis, std::unique_ptr<Command> command, bool positive, int controllerIndex);
+
 		void ClearBindings();
 
 	private:

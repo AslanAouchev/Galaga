@@ -65,7 +65,6 @@ void NameInputComponent::OnNotify(const EventData& event)
         SetActive(false);
         auto& highScoreManager = HighScoreManager::GetInstance();
         highScoreManager.AddHighScore(m_CurrentName, m_Score);
-		std::cout << "New high score added: " << m_CurrentName << " with score: " << m_Score << std::endl;
         extern void loadHighScores();
         loadHighScores();
     }

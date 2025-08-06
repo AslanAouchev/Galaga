@@ -68,7 +68,7 @@ public:
                 pair.second->Execute(deltaTime);
             }
         }
-
+        
         for (int i{}; i < MAX_CONTROLLERS; ++i)
         {
             if (m_Controllers[i].isConnected && m_Controllers[i].gameController)
@@ -80,6 +80,28 @@ public:
                     {
                         pair.second->Execute(deltaTime);
                     }
+                }
+        
+                for (const auto& pair : m_ContinuousAxisNegativeCommands[i])
+                {
+                    auto axis = pair.first;
+                    float value = SDL_GameControllerGetAxis(m_Controllers[i].gameController.get(), axis) / 32767.0f;
+                    if (value < -0.3f && pair.second)
+                    {
+                        pair.second->Execute(deltaTime);
+                    }
+
+                }
+
+                for (const auto& pair : m_ContinuousAxisPositiveCommands[i])
+                {
+                    auto axis = pair.first;
+                    float value = SDL_GameControllerGetAxis(m_Controllers[i].gameController.get(), axis) / 32767.0f;
+                    if (value > 0.3f && pair.second)
+                    {
+                        pair.second->Execute(deltaTime);
+                    }
+
                 }
             }
         }
@@ -111,6 +133,23 @@ public:
         }
     }
 
+    void BindContinuousAxisCommand(SDL_GameControllerAxis axis, std::unique_ptr<Command> command, bool positive, int controllerIndex = 0)
+    {
+        if (!IsValidControllerIndex(controllerIndex)) 
+        {
+            return;
+        }
+
+        if (positive)
+        {
+            m_ContinuousAxisPositiveCommands[controllerIndex][axis] = std::move(command);
+        }
+        else
+        {
+            m_ContinuousAxisNegativeCommands[controllerIndex][axis] = std::move(command);
+        }
+    }
+
     void ClearBindings()
     {
         m_KeyboardCommands.clear();
@@ -120,6 +159,8 @@ public:
         {
             m_ControllerCommands[i].clear();
             m_ContinuousControllerCommands[i].clear();
+			m_ContinuousAxisNegativeCommands[i].clear();
+			m_ContinuousAxisPositiveCommands[i].clear();
         }
     }
 
@@ -219,6 +260,9 @@ private:
     std::array<std::unordered_map<Uint8, std::unique_ptr<Command>>, MAX_CONTROLLERS> m_ControllerCommands;
     std::array<std::unordered_map<Uint8, std::unique_ptr<Command>>, MAX_CONTROLLERS> m_ContinuousControllerCommands;
 
+    std::array<std::unordered_map<SDL_GameControllerAxis, std::unique_ptr<Command>>, MAX_CONTROLLERS> m_ContinuousAxisNegativeCommands;
+    std::array<std::unordered_map<SDL_GameControllerAxis, std::unique_ptr<Command>>, MAX_CONTROLLERS> m_ContinuousAxisPositiveCommands;
+
     std::array<ControllerData, MAX_CONTROLLERS> m_Controllers;
 };
 
@@ -254,6 +298,11 @@ void dae::InputManager::BindContinuousCommand(SDL_Scancode key, std::unique_ptr<
 void dae::InputManager::BindContinuousCommand(Uint8 controllerButton, std::unique_ptr<Command> command, int controllerIndex)
 {
     m_pImpl->BindContinuousCommand(controllerButton, std::move(command), controllerIndex);
+}
+
+void dae::InputManager::BindContinuousAxisCommand(SDL_GameControllerAxis axis, std::unique_ptr<Command> command, bool positive, int controllerIndex)
+{
+    m_pImpl->BindContinuousAxisCommand(axis, std::move(command), positive, controllerIndex);
 }
 
 void dae::InputManager::ClearBindings()

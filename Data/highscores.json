@@ -1,24 +1,24 @@
 {
   "highscores": [
     {
+      "name": "OAJ",
+      "score": 240
+    },
+    {
+      "name": "AAA",
+      "score": 240
+    },
+    {
+      "name": "AAA",
+      "score": 160
+    },
+    {
       "name": "AAA",
       "score": 5
     },
     {
       "name": "AAA",
       "score": 4
-    },
-    {
-      "name": "AAA",
-      "score": 3
-    },
-    {
-      "name": "AAA",
-      "score": 2
-    },
-    {
-      "name": "AAA",
-      "score": 1
     }
   ]
 }

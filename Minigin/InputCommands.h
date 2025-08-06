@@ -171,7 +171,10 @@ public:
 
     virtual void Execute(float) override
     {
-
+        if (GetGameObject())
+        {
+            GetGameObject()->TriggerEvent("MenuUp");
+        }
     }
 };
 
@@ -191,7 +194,10 @@ public:
 
     virtual void Execute(float) override
     {
-
+        if (GetGameObject())
+        {
+            GetGameObject()->TriggerEvent("MenuDown");
+        }
     }
 };
 

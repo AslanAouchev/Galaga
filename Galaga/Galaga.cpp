@@ -87,6 +87,8 @@ void loadMainMenu()
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(menuManager.get()), 0);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(menuManager.get()), 0);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(menuManager.get()), 0);
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTY, std::make_unique<UpUiCommand>(menuManager.get()), false, 0);
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTY, std::make_unique<DownUiCommand>(menuManager.get()), true, 0);
 
 	scene.Add(std::move(menuManager));
 
@@ -161,6 +163,9 @@ void loadSinglePlayer()
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, std::make_unique<MoveRightCommand>(go.get()), 0);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, std::make_unique<FireCommand>(go.get()), 0);
 
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTX, std::make_unique<MoveLeftCommand>(go.get()), false, 0);
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTX, std::make_unique<MoveRightCommand>(go.get()), true, 0);
+
 	input.BindCommand(SDL_SCANCODE_ESCAPE, std::make_unique<PauseCommand>(fo.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_START, std::make_unique<PauseCommand>(fo.get()), 0);
 	input.BindCommand(SDL_SCANCODE_UP, std::make_unique<UpUiCommand>(fo.get()));
@@ -174,6 +179,9 @@ void loadSinglePlayer()
 	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(fo.get()), 0);
 	input.BindCommand(SDL_SCANCODE_F2, std::make_unique<MuteCommand>(fo.get()));
 	input.BindCommand(SDL_SCANCODE_F1, std::make_unique<SkipLevelCommand>(fo.get()));
+
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTY, std::make_unique<UpUiCommand>(go.get()), false, 0);
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTY, std::make_unique<DownUiCommand>(go.get()), true, 0);
 
 	go->AddObserver(fo.get()->GetComponent<Observer>());
 	fo->AddObserver(go.get()->GetComponent<Observer>());
@@ -237,10 +245,14 @@ void loadTwoPlayer()
 	input.BindContinuousCommand(SDL_SCANCODE_A, std::make_unique<MoveLeftCommand>(go.get()));
 	input.BindContinuousCommand(SDL_SCANCODE_D, std::make_unique<MoveRightCommand>(go.get()));
 	input.BindCommand(SDL_SCANCODE_SPACE, std::make_unique<FireCommand>(go.get()));
+
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTX, std::make_unique<MoveLeftCommand>(go.get()), false, 0);
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTX, std::make_unique<MoveRightCommand>(go.get()), true, 0);
 	 
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, std::make_unique<MoveLeftCommand>(go.get()), 0);
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, std::make_unique<MoveRightCommand>(go.get()), 0);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, std::make_unique<FireCommand>(go.get()), 0);
+
 
 	go->AddObserver(fo.get()->GetComponent<Observer>());
 	fo->AddObserver(go.get()->GetComponent<Observer>());
@@ -254,6 +266,9 @@ void loadTwoPlayer()
 	input.BindContinuousCommand(SDL_SCANCODE_LEFT, std::make_unique<MoveLeftCommand>(go2.get()));
 	input.BindContinuousCommand(SDL_SCANCODE_RIGHT, std::make_unique<MoveRightCommand>(go2.get()));
 	input.BindCommand(SDL_SCANCODE_RCTRL, std::make_unique<FireCommand>(go2.get()));
+
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTX, std::make_unique<MoveLeftCommand>(go2.get()), false, 1);
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTX, std::make_unique<MoveRightCommand>(go2.get()), true, 1);
 
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, std::make_unique<MoveLeftCommand>(go2.get()), 1);
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, std::make_unique<MoveRightCommand>(go2.get()), 1);
@@ -276,10 +291,16 @@ void loadTwoPlayer()
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(fo.get()), 0);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(fo.get()), 0);
 
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTY, std::make_unique<UpUiCommand>(fo.get()), false, 0);
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTY, std::make_unique<DownUiCommand>(fo.get()), true, 0);
+
 	input.BindCommand(SDL_CONTROLLER_BUTTON_START, std::make_unique<PauseCommand>(fo.get()), 1);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(fo.get()), 1);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(fo.get()), 1);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(fo.get()), 1);
+
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTY, std::make_unique<UpUiCommand>(fo.get()), false, 1);
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTY, std::make_unique<DownUiCommand>(fo.get()), true, 1);
 
 	input.BindCommand(SDL_SCANCODE_F2, std::make_unique<MuteCommand>(fo.get()));
 	input.BindCommand(SDL_SCANCODE_F1, std::make_unique<SkipLevelCommand>(fo.get()));
@@ -345,9 +366,13 @@ void loadPvP()
 	input.BindContinuousCommand(SDL_SCANCODE_A, std::make_unique<MoveLeftCommand>(go.get()));
 	input.BindContinuousCommand(SDL_SCANCODE_D, std::make_unique<MoveRightCommand>(go.get()));
 	input.BindCommand(SDL_SCANCODE_SPACE, std::make_unique<FireCommand>(go.get()));
+
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_LEFT, std::make_unique<MoveLeftCommand>(go.get()), 0);
 	input.BindContinuousCommand(SDL_CONTROLLER_BUTTON_DPAD_RIGHT, std::make_unique<MoveRightCommand>(go.get()), 0);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, std::make_unique<FireCommand>(go.get()), 0);
+
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTX, std::make_unique<MoveLeftCommand>(go.get()), false, 0);
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTX, std::make_unique<MoveRightCommand>(go.get()), true, 0);
 
 	input.BindCommand(SDL_SCANCODE_ESCAPE, std::make_unique<PauseCommand>(fo.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_START, std::make_unique<PauseCommand>(fo.get()), 0);
@@ -359,6 +384,10 @@ void loadPvP()
 	input.BindCommand(SDL_SCANCODE_KP_ENTER, std::make_unique<ConfirmUiCommand>(fo.get()));
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_UP, std::make_unique<UpUiCommand>(fo.get()), 0);
 	input.BindCommand(SDL_CONTROLLER_BUTTON_DPAD_DOWN, std::make_unique<DownUiCommand>(fo.get()), 0);
+
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTY, std::make_unique<UpUiCommand>(fo.get()), false, 0);
+	input.BindContinuousAxisCommand(SDL_CONTROLLER_AXIS_LEFTY, std::make_unique<DownUiCommand>(fo.get()), true, 0);
+
 	input.BindCommand(SDL_CONTROLLER_BUTTON_A, std::make_unique<ConfirmUiCommand>(fo.get()), 0);
 	input.BindCommand(SDL_SCANCODE_F2, std::make_unique<MuteCommand>(fo.get()));
 	input.BindCommand(SDL_SCANCODE_F1, std::make_unique<SkipLevelCommand>(fo.get()));
