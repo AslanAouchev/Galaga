@@ -16,7 +16,6 @@
 #include <SDL_gamecontroller.h>
 #include "BossAIControllerComponent.h"
 
-
 GalagaGameManager::GalagaGameManager(dae::GameObject* pOwner) : dae::Component(pOwner)
 {
 }
